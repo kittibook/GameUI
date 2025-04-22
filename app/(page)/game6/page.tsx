@@ -10,7 +10,7 @@ export default function Game_AnimalMatch() {
     { id: 1, name: "ฝน", sound: "https://api.bxok.online/public/mp3/rain.mp3" },
     { id: 2, name: "ลม", sound: "https://api.bxok.online/public/mp3/soft.mp3" },
     { id: 3, name: "น้ำตก", sound: "https://api.bxok.online/public/mp3/waterfall.mp3" },
-
+    { id: 3, name: "ควย", sound: "https://api.bxok.online/public/mp3/waterfall.mp3" },
   ];
 
   const [currentAnimal, setCurrentAnimal] = useState<{
