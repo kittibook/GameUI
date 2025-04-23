@@ -3,7 +3,7 @@
 import { GameContext } from "@/app/Context/gameContext";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 export default function Home() {
   const router = useRouter();
@@ -13,12 +13,39 @@ export default function Home() {
     return <p>Loading context...</p>;
   }
 
-  const { updataName, updateAge, updateDisease, RestartTime } = context;
+  const { updataName, updateAge, updateDisease, RestartTime, updatePosition } = context;
 
   const [text1, setText1] = useState(""); //ขื่อ 
   const [text2, setText2] = useState(""); //อายุ
   const [text3, setText3] = useState(""); // โรค
 
+  // ฟังก์ชันในการดึงตำแหน่งของผู้ใช้
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          // ตรวจสอบค่าพิกัดที่ได้รับ
+          // console.log(position.coords.latitude, position.coords.longitude)
+          updatePosition({
+            latitude: position.coords.latitude.toString(),
+            longitude: position.coords.longitude.toString()
+          }); // ตั้งค่าพิกัดผู้ใช้
+        },
+        (error) => {
+          // กรณีที่เกิดข้อผิดพลาด
+          // console.error("Geolocation error:", error);
+          // console.error("ข้อผิดพลาดรหัส:", error.code);
+          // console.error("ข้อความข้อผิดพลาด:", error.message);
+        }
+      );
+    } else {
+      // console.log("Geolocation is not supported by this browser.");
+    }
+  };
+  useEffect(() => {
+    getUserLocation(); // เรียกใช้เมื่อ component mount
+  }, []);
+  
   const handleNext = () => {
     if (!text1 || !text2 || !text3) {
       alert("กรุณากรอกข้อมูลให้ครบถ้วน");
@@ -29,6 +56,9 @@ export default function Home() {
     if (isNaN(age) || age <= 0) {
       alert("กรุณากรอกอายุให้ถูกต้อง");
       return;
+    }
+    if(context?.gameData?.position.latitude == "" || context?.gameData?.position.longitude == "") {
+      getUserLocation()
     }
     updataName(text1)
     updateAge(age)

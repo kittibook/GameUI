@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { GameContext } from "@/app/Context/gameContext";
 import { detailGame456 } from "@/app/Types/gameProvider";
 import { motion } from "framer-motion";
+import ScoreShow from "../UI/score";
+import { Bounce, toast, ToastContainer } from "react-toastify";
 
 interface currentAnimal {
   id: number;
@@ -42,12 +44,13 @@ export default function Game_AnimalMatch() {
     return <p>Loading context...</p>;
   }
 
-  const { updateGame4, updateScore, StartTime, StopTime, time } = context;
+  const { updateGame4, updateScore, StartTime, StopTime, time, Sound } = context;
 
   // กันไม่กรอกข้อมูล
   useEffect(() => {
     if (context?.gameData) {
       const data = context.gameData;
+      context.Name("เกมรูปสัตว์")
       if (
         data.name === "" ||
         data.age === 0 ||
@@ -98,7 +101,8 @@ export default function Game_AnimalMatch() {
   const handleStartGame = () => {
     setShowOverlay(false);
     startGame();
-    playAudio("https://api.bxok.online/public/mp3/button-click.mp3");
+    playAudio("https://api.bxok.online/public/mp3/game4.mp3");
+    Sound("https://api.bxok.online/public/mp3/game4.mp3")
   };
 
   const playAudio = (audioUrl: string) => {
@@ -118,9 +122,7 @@ export default function Game_AnimalMatch() {
     isPlaying.current = true;
     audioRef.current
       .play()
-      .then(() => console.log("Audio played successfully"))
       .catch((error) => {
-        console.error("Error playing audio:", error);
         isPlaying.current = false;
       });
 
@@ -148,6 +150,17 @@ export default function Game_AnimalMatch() {
       setDetail([...detail, details]);
       updateScore(1);
       setScore(score + 1);
+      toast.success(`คำตอบถูกต้อง ✅`, {
+        position: "top-right",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
     } else {
       const details = {
         ismatch: false,
@@ -156,6 +169,17 @@ export default function Game_AnimalMatch() {
         answer: currentAnimal.name,
       };
       setDetail([...detail, details]);
+      toast.error(`❌ คำตอบที่ถูกคือ ${currentAnimal.name}`, {
+        position: "top-right",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
     }
 
     if (round < 3) {
@@ -408,7 +432,7 @@ export default function Game_AnimalMatch() {
       <Navbar />
       {showOverlay ? (
         <motion.div
-          className="overlay flex justify-center w-full min-h-screen pt-20 bg-green-200"
+          className="overlay flex justify-center w-full min-h-screen pt-20 bg-gradient-to-r from-indigo-100 to-purple-100"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7 }}
@@ -479,11 +503,9 @@ export default function Game_AnimalMatch() {
           </motion.div>
         </motion.div>
       ) : (
-        <div className="w-full h-full min-h-screen bg-gradient-to-br from-purple-200 via-blue-200 to-pink-200 bg-fixed">
+        <div className="w-full h-full min-h-screen  bg-gradient-to-r from-indigo-100 to-purple-100 bg-fixed">
           <div className="flex flex-col items-center min-h-screen pt-5 px-4">
-            <div className="font-mali text-lg md:text-4xl font-bold text-red-600 animate-pulse">
-              คะแนน: {score}
-            </div>
+
             {currentAnimal && !isGameOver && (
               <>
                 <div className="mb-5 transition-transform duration-300 ease-in-out hover:scale-105">
@@ -508,9 +530,10 @@ export default function Game_AnimalMatch() {
               </>
             )}
             {isGameOver && (
-              <div className="text-center">
+              <div className="text-center mt-16">
+                <ScoreShow gameName={context?.gameName} score={score.toString()} />
                 <button
-                  className="fixed top-1/2 right-5 transform -translate-y-1/2 p-3 rounded-full shadow-lg transition-all duration-300 ease-in-out hover:scale-110 hover:shadow-xl text-white"
+                  className="mt-8 text-white p-4 rounded-full hover:scale-110 transition-all text-xl"
                   onClick={resetGame}
                 >
                   <motion.img
@@ -527,6 +550,7 @@ export default function Game_AnimalMatch() {
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 }

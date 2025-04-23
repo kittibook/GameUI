@@ -7,6 +7,7 @@ import { GameContext } from "@/app/Context/gameContext";
 import { useRouter } from "next/navigation";
 import { detailGame3 } from "@/app/Types/gameProvider";
 import { motion } from "framer-motion";
+import ScoreShow from "../UI/score";
 
 interface cards {
   id: number;
@@ -39,7 +40,7 @@ export default function Game_CardflipNumber() {
     return <p>Loading context...</p>;
   }
 
-  const { updateGame3, updateScore, StartTime, StopTime, time } = context;
+  const { updateGame3, updateScore, StartTime, StopTime, time, Sound } = context;
 
   const hasStarted = useRef(false);
   const hasFlipped = useRef(false);
@@ -77,6 +78,7 @@ export default function Game_CardflipNumber() {
   useEffect(() => {
     if (context?.gameData) {
       const data = context.gameData;
+      context.Name("เกมจับคู่เลข")
       if (
         data.name == "" ||
         data.age == 0 ||
@@ -90,7 +92,6 @@ export default function Game_CardflipNumber() {
 
   const startgame = () => {
     if (!hasStarted.current) {
-      playAudio("https://api.bxok.online/public/mp3/game1.mp3");
       hasStarted.current = true;
       setTimeout(() => {
         setCards((prevCards) =>
@@ -112,8 +113,8 @@ export default function Game_CardflipNumber() {
   const handleStartGame = () => {
     setShowOverlay(false);
     startgame();
-    // Play button click sound
-    playAudio("https://api.bxok.online/public/mp3/button-click.mp3");
+    playAudio("https://api.bxok.online/public/mp3/game3.mp3");
+    Sound("https://api.bxok.online/public/mp3/game3.mp3")
   };
 
   useEffect(() => {
@@ -139,9 +140,7 @@ export default function Game_CardflipNumber() {
     isPlaying.current = true;
     audioRef.current
       .play()
-      .then(() => console.log("Audio played successfully"))
       .catch((error) => {
-        console.error("Error playing audio:", error);
         isPlaying.current = false;
       });
 
@@ -571,7 +570,7 @@ export default function Game_CardflipNumber() {
       <Navbar />
       {showOverlay ? (
         <motion.div
-          className="overlay flex justify-center bg-green-200 pt-10 w-full min-h-screen pt-20 "
+          className="overlay flex justify-center bg-gradient-to-r from-indigo-100 to-purple-100 w-full min-h-screen pt-20 "
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7 }}
@@ -642,54 +641,58 @@ export default function Game_CardflipNumber() {
           </motion.div>
         </motion.div>
       ) : (
-        <div className="w-full h-full bg-fixed bg-gradient-to-br from-purple-200 via-blue-200 to-pink-200">
+        <div className="w-full h-full bg-fixed  bg-gradient-to-r from-indigo-100 to-purple-100">
           <div className="flex flex-col items-center w-full min-h-screen pt-10">
-            <div className="font-mali md:text-4xl text-lg font-bold text-red-600 score-text">
-              คะแนน: {score}
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-12 p-6">
-              {cards.map((card, index) => (
-                <div
-                  key={index}
-                  className={`w-[171px] h-[242px] cursor-pointer card ${
-                    card.flipped || card.matched ? "flipped" : ""
-                  }`}
-                  onClick={() => handleCardClick(index)}
-                >
-                  <div className="card-inner">
+            {matchedPairs !== 3 && (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-12 p-6">
+                  {cards.map((card, index) => (
                     <div
-                      className={`card-front ${
-                        card.error === 0
-                          ? "bg-red-300 error"
-                          : card.error === 1
-                          ? "bg-green-300 matched"
-                          : "bg-white"
-                      } text-9xl font-bold font-mali text-blue-500`}
+                      key={index}
+                      className={`w-[171px] h-[242px] cursor-pointer card ${card.flipped || card.matched ? "flipped" : ""
+                        }`}
+                      onClick={() => handleCardClick(index)}
                     >
-                      {card.number}
+                      <div className="card-inner">
+                        <div
+                          className={`card-front ${card.error === 0
+                            ? "bg-red-300 error"
+                            : card.error === 1
+                              ? "bg-green-300 matched"
+                              : "bg-white"
+                            } text-9xl font-bold font-mali text-blue-500`}
+                        >
+                          {card.number}
+                        </div>
+                        <div className="card-back">
+                          <img
+                            src="/images/cardback.png"
+                            alt="Card Back"
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div className="card-back">
-                      <img
-                        src="/images/cardback.png"
-                        alt="Card Back"
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+
+              </>
+            )}
+
             {matchedPairs === 3 && (
-              <button className="reset-button" onClick={submit}>
-                <motion.img
-                  className="mt-6 drop-shadow-lg"
-                  src="/images/next.png"
-                  alt="Next Button"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1 }}
-                />
-              </button>
+              <div className="text-center mt-16">
+                <ScoreShow gameName={context?.gameName} score={score.toString()} />
+                <button className="mt-8 text-white p-4 rounded-full hover:scale-110 transition-all text-xl" onClick={submit}>
+                  <motion.img
+                    className="mt-6 drop-shadow-lg"
+                    src="/images/next.png"
+                    alt="Next Button"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 1 }}
+                  />
+                </button>
+              </div>
             )}
           </div>
         </div>

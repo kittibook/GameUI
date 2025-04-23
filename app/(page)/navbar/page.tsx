@@ -1,6 +1,6 @@
 "use client";
 import { GameContext } from "@/app/Context/gameContext";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   FaUser,
   FaStar,
@@ -11,12 +11,15 @@ import {
 const CustomUI = () => {
   const [soundPlayed, setSoundPlayed] = useState(false);
   const [stage, setStage] = useState(3); // สามารถเปลี่ยนได้ตามด่าน
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const isPlaying = useRef(false);
+
   const context = useContext(GameContext);
 
   if (!context) {
     return <p>Loading context...</p>;
   }
-
+  const { sound } = context
   // reset ปุ่มเสียงเมื่อเปลี่ยนด่าน
   useEffect(() => {
     setSoundPlayed(false);
@@ -34,10 +37,40 @@ const CustomUI = () => {
   // เล่นเสียง (สามารถแทนที่ด้วย Audio ได้จริง)
   const handlePlaySound = () => {
     if (!soundPlayed) {
-
-      setSoundPlayed(true);
+      playAudio(sound)
     }
   };
+
+  const playAudio = (sounds: string) => {
+    if (sounds !== "") {
+      if (!audioRef.current) {
+        audioRef.current = new Audio(sounds);
+        audioRef.current.muted = false;  // Make sure it's not muted
+        audioRef.current.volume = 1;     // Set volume to full
+      }
+
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        isPlaying.current = false;
+      }
+
+      audioRef.current.src = sounds;
+      isPlaying.current = true;
+      audioRef.current
+        .play()
+        .then(() => setSoundPlayed(true))
+        .catch((error) => {
+          isPlaying.current = false;
+        });
+
+      audioRef.current.onended = () => {
+        isPlaying.current = false;
+      };
+
+    } 
+  };
+
 
   return (
     <div className="w-full font-mali">
@@ -48,7 +81,7 @@ const CustomUI = () => {
           <div className="flex items-center space-x-2">
             <FaUser className="text-indigo-600 text-lg md:text-2xl hover:scale-110 transition-transform duration-200" />
             <span className="text-gray-800 text-sm md:text-lg font-semibold">
-                {context?.gameData?.name}
+              {context?.gameData?.name}
             </span>
           </div>
 
@@ -56,7 +89,7 @@ const CustomUI = () => {
           <div className="flex items-center space-x-2">
             <FaStar className="text-yellow-400 text-lg md:text-2xl hover:scale-110 transition-transform duration-200" />
             <span className="text-gray-800 text-sm md:text-lg font-semibold">
-            {context?.gameData?.score}
+              {context?.gameData?.score}
             </span>
           </div>
 
@@ -71,9 +104,8 @@ const CustomUI = () => {
           <button
             onClick={handlePlaySound}
             disabled={soundPlayed}
-            className={`p-1 rounded-full hover:scale-110 transition-transform duration-200 ${
-              soundPlayed ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-            }`}
+            className={`p-1 rounded-full hover:scale-110 transition-transform duration-200 ${soundPlayed ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+              }`}
             title="เล่นเสียง"
           >
             <FaVolumeUp className="text-blue-500 text-lg md:text-2xl" />
@@ -83,7 +115,8 @@ const CustomUI = () => {
           <div className="flex items-center space-x-2">
             <FaFlagCheckered className="text-green-500 text-lg md:text-2xl hover:scale-110 transition-transform duration-200" />
             <span className="text-gray-800 text-sm md:text-lg font-semibold">
-              ถึงด่านที่ {stage}
+              {context?.gameName}
+
             </span>
           </div>
 

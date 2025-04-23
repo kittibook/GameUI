@@ -7,6 +7,8 @@ import { GameContext } from "@/app/Context/gameContext";
 import { detailGame456 } from "@/app/Types/gameProvider";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import ScoreShow from "../UI/score";
+import { Bounce, toast, ToastContainer } from "react-toastify";
 
 export default function Game_AnimalMatch() {
   const animals = [
@@ -59,13 +61,14 @@ export default function Game_AnimalMatch() {
     return <p>Loading context...</p>;
   }
 
-  const { updateGame5, updateScore, StartTime, StopTime, time } = context;
+  const { updateGame5, updateScore, StartTime, StopTime, time, Sound } = context;
 
   // กันไม่กรอกข้อมูล
   useEffect(() => {
     if (context?.gameData) {
       const data = context.gameData;
-      if (
+      context.Name("เกมเสียงสัตว์")
+      if (  
         data.name === "" ||
         data.age === 0 ||
         data.disease === "" ||
@@ -77,11 +80,11 @@ export default function Game_AnimalMatch() {
   }, [context?.gameData]);
 
   // ทดสอบ
-  useEffect(() => {
-    if (context.gameData) {
-      console.log(context.gameData);
-    }
-  }, [context?.gameData]);
+  // useEffect(() => {
+  //   if (context.gameData) {
+  //     console.log(context.gameData);
+  //   }
+  // }, [context?.gameData]);
 
   const shuffleArray = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
 
@@ -115,7 +118,8 @@ export default function Game_AnimalMatch() {
   const handleStartGame = () => {
     setShowOverlay(false);
     startGame();
-    playAudio("https://api.bxok.online/public/mp3/button-click.mp3");
+    playAudio("https://api.bxok.online/public/mp3/game5.mp3");
+    Sound("https://api.bxok.online/public/mp3/game5.mp3")
   };
 
   const playAudio = (audioUrl: string) => {
@@ -135,9 +139,7 @@ export default function Game_AnimalMatch() {
     isPlaying.current = true;
     audioRef.current
       .play()
-      .then(() => console.log("Audio played successfully"))
       .catch((error) => {
-        console.error("Error playing audio:", error);
         isPlaying.current = false;
       });
 
@@ -171,6 +173,17 @@ export default function Game_AnimalMatch() {
       setDetail([...detail, details]);
       updateScore(1);
       setScore(score + 1);
+      toast.success(`คำตอบถูกต้อง ✅`, {
+                position: "top-right",
+                autoClose: 1000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                transition: Bounce,
+                });
     } else {
       const details = {
         ismatch: false,
@@ -179,6 +192,17 @@ export default function Game_AnimalMatch() {
         answer: currentAnimal.name,
       };
       setDetail([...detail, details]);
+      toast.error(`❌ คำตอบที่ถูกคือ ${currentAnimal.name}`, {
+        position: "top-right",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+        });
     }
 
     if (round < 3) {
@@ -191,6 +215,7 @@ export default function Game_AnimalMatch() {
       }
     } else {
       setRound(round + 1);
+     
     }
   };
 
@@ -431,7 +456,7 @@ export default function Game_AnimalMatch() {
       <Navbar />
       {showOverlay ? (
         <motion.div
-          className="overlay flex justify-center w-full min-h-screen pt-20 bg-green-200"
+          className="overlay flex justify-center w-full min-h-screen pt-20 bg-gradient-to-r from-indigo-100 to-purple-100"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7 }}
@@ -502,11 +527,11 @@ export default function Game_AnimalMatch() {
           </motion.div>
         </motion.div>
       ) : (
-        <div className="w-full h-full min-h-screen bg-gradient-to-br from-yellow-100 via-green-100 to-blue-100 flex flex-col">
+        <div className="w-full h-full min-h-screen  bg-gradient-to-r from-indigo-100 to-purple-100 flex flex-col">
           <div className="flex-1 flex flex-col items-center justify-start pt-10">
-            <h1 className="text-4xl font-bold text-blue-700 mb-6 font-mali">
+            {/* <h1 className="text-4xl font-bold text-blue-700 mb-6 font-mali">
               คะแนน: {score}
-            </h1>
+            </h1> */}
 
             {!isGameOver && currentAnimal && (
               <>
@@ -544,9 +569,11 @@ export default function Game_AnimalMatch() {
             {/* เกมจบแล้ว */}
             {isGameOver && (
               <div className="text-center mt-16">
-                <p className="text-3xl font-bold text-green-600 font-mali">
+                {/* <p className="text-3xl font-bold text-green-600 font-mali">
                   เกมจบแล้ว! คะแนนของคุณ: {score}/4
-                </p>
+                </p> */}
+                <ScoreShow gameName={context?.gameName} score={score.toString()} />
+                
                 <button
                   className="mt-8 text-white p-4 rounded-full hover:scale-110 transition-all text-xl"
                   onClick={resetGame}
@@ -562,6 +589,7 @@ export default function Game_AnimalMatch() {
                 </button>
               </div>
             )}
+            <ToastContainer />
           </div>
         </div>
       )}

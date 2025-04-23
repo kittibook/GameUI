@@ -7,6 +7,8 @@ import { defaultGameData } from "../Constants/defaultGameData";
 interface GameContextType {
     gameData: Game | undefined;
     time: number;
+    gameName : string;
+    sound : string
     updateDataSet: (dataSet: number) => void;
     updataName: (name: string) => void;
     updateAge: (age: number) => void;
@@ -19,6 +21,8 @@ interface GameContextType {
     updateGame4: (Game: Game456) => void;
     updateGame5: (Game: Game456) => void;
     updateGame6: (Game: Game456) => void;
+    Name: (name : string) => void;
+    Sound: (sound : string) => void;
     StartTime: () => void;
     StopTime: () => void;
     RestartTime: () => void;
@@ -31,6 +35,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const [gameData, setGameData] = useState<Game>(defaultGameData);
     const [startTime, setStartTime] = useState<boolean>(false)
     const [time, setTime] = useState<number>(0)
+    const [sound, setSound] = useState<string>('')
+    const [gameName, setGameName] = useState<string>('')
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -47,6 +53,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const StartTime = () => { setStartTime(true) }
     const StopTime = () => { setStartTime(false) }
     const RestartTime = () => { setTime(0) }
+
+    const Sound = (sound : string) => {
+        setSound(sound)
+    }
+
+    const Name = (name : string) => {
+        setGameName(name)
+    }
 
 
     const updataName = (name: string) => {
@@ -178,9 +192,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
         <GameContext.Provider value={{
             gameData,
             time,
+            sound,
+            gameName,
             StartTime,
             StopTime,
             RestartTime,
+            Name,
+            Sound,
             updateDataSet,
             updataName,
             updateAge,
