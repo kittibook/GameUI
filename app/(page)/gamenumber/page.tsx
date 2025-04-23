@@ -611,10 +611,10 @@ export default function Game_CardflipNumber() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              <li>ดูการ์ดทั้งหมด 5 วินาทีเมื่อเริ่มเกม</li>
+              {/* <li>ดูการ์ดทั้งหมด 5 วินาทีเมื่อเริ่มเกม</li>
               <li>คลิกเพื่อเปิดการ์ดและจับคู่ตัวเลข</li>
               <li>ได้คะแนนเมื่อจับคู่สำเร็จ</li>
-              <li>จบเกมเมื่อจับคู่ครบ 3 คู่!</li>
+              <li>จบเกมเมื่อจับคู่ครบ 3 คู่!</li> */}
             </motion.ul>
             <motion.div
               className="flex justify-center items-center"

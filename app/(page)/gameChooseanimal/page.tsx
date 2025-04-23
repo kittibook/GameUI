@@ -473,10 +473,10 @@ export default function Game_AnimalMatch() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              <li>ดูรูปสัตว์ที่แสดง</li>
+              {/* <li>ดูรูปสัตว์ที่แสดง</li>
               <li>เลือกชื่อสัตว์ที่ถูกต้องจากตัวเลือก</li>
               <li>ได้คะแนนเมื่อเลือกถูก</li>
-              <li>จบเกมเมื่อเล่นครบ 4 รอบ!</li>
+              <li>จบเกมเมื่อเล่นครบ 4 รอบ!</li> */}
             </motion.ul>
             <motion.div
               className="flex justify-center items-center"

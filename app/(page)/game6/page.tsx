@@ -261,10 +261,10 @@ export default function Game_AnimalMatch() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              <li>กดปุ่มลำโพงเพื่อฟังเสียง</li>
+              {/* <li>กดปุ่มลำโพงเพื่อฟังเสียง</li>
               <li>เลือกคำที่ตรงกับเสียงจากตัวเลือก</li>
               <li>ได้คะแนนเมื่อเลือกถูก</li>
-              <li>จบเกมเมื่อเล่นครบ 4 รอบ!</li>
+              <li>จบเกมเมื่อเล่นครบ 4 รอบ!</li> */}
             </motion.ul>
             <motion.div
               className="flex justify-center items-center"

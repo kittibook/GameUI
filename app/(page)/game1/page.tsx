@@ -10,7 +10,9 @@ export default function DrawShapeUI() {
   const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [contexts, setContext] = useState<CanvasRenderingContext2D | null>(null);
+  const [contexts, setContext] = useState<CanvasRenderingContext2D | null>(
+    null
+  );
   const [detail, setDetail] = useState<detailGame456[]>([]);
   const [showOverlay, setShowOverlay] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -34,23 +36,28 @@ export default function DrawShapeUI() {
       }
     }
   }, []);
-  //กันไม่กรอกข้อมูล
+
   useEffect(() => {
     if (context?.gameData) {
-      const data = context.gameData
-      Name('เกมวาดรูป 6 เหลี่ยม')
-      if (data.name == "" || data.age == 0 || data.disease == "" || data.dataSet == 0) {
-        router.push('/')
+      const data = context.gameData;
+      Name("เกมวาดรูป 6 เหลี่ยม");
+      if (
+        data.name == "" ||
+        data.age == 0 ||
+        data.disease == "" ||
+        data.dataSet == 0
+      ) {
+        router.push("/");
       }
     }
   }, [context?.gameData]);
 
   const startGame = () => {
-    setShowOverlay(false)
+    setShowOverlay(false);
     playAudio("https://api.bxok.online/public/mp3/game1.mp3");
-    Sound("https://api.bxok.online/public/mp3/game1.mp3")
-    StartTime()
-  }
+    Sound("https://api.bxok.online/public/mp3/game1.mp3");
+    StartTime();
+  };
 
   const playAudio = (audioUrl: string) => {
     if (!audioRef.current) {
@@ -67,45 +74,78 @@ export default function DrawShapeUI() {
 
     audioRef.current.src = audioUrl;
     isPlaying.current = true;
-    audioRef.current
-      .play()
-      .catch((error) => {
-        isPlaying.current = false;
-      });
+    audioRef.current.play().catch((error) => {
+      isPlaying.current = false;
+    });
 
     audioRef.current.onended = () => {
       isPlaying.current = false;
     };
   };
 
+  const getCoordinates = (
+    event:
+      | React.MouseEvent<HTMLCanvasElement>
+      | React.TouchEvent<HTMLCanvasElement>
+  ) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
 
+    const rect = canvas.getBoundingClientRect();
+    let x, y;
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if ("touches" in event) {
+      x = event.touches[0].clientX - rect.left;
+      y = event.touches[0].clientY - rect.top;
+    } else {
+      x = event.nativeEvent.offsetX;
+      y = event.nativeEvent.offsetY;
+    }
+
+    return { x, y };
+  };
+
+  const startDrawing = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
-  
+
+    const { x, y } = getCoordinates(e);
     ctx.beginPath();
-    ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+    ctx.moveTo(x, y);
     setIsDrawing(true);
+
+    // Prevent default touch behavior to avoid scrolling
+    if ("touches" in e) {
+      e.preventDefault();
+    }
   };
-  
-  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+
+  const draw = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ) => {
     if (!isDrawing) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
-  
-    ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+
+    const { x, y } = getCoordinates(e);
+    ctx.lineTo(x, y);
     ctx.stroke();
+
+    // Prevent default touch behavior to avoid scrolling
+    if ("touches" in e) {
+      e.preventDefault();
+    }
   };
-  
+
   const stopDrawing = () => {
     setIsDrawing(false);
   };
-  
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -118,12 +158,11 @@ export default function DrawShapeUI() {
       }
     }
   }, []);
-  
 
   const submit = () => {
-    router.push("/gamecolor")
-    StopTime()
-  }
+    router.push("/gamecolor");
+    StopTime();
+  };
 
   return (
     <div className="">
@@ -135,14 +174,12 @@ export default function DrawShapeUI() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7 }}
         >
-          {/* Particle Effects */}
           <div className="particle">🟠</div>
           <div className="particle">🟣</div>
           <div className="particle">🟡</div>
           <div className="particle floating-card"></div>
           <div className="particle floating-card"></div>
 
-          {/* Content inside overlay */}
           <motion.div
             className="instructions"
             initial={{ scale: 0.7, opacity: 0, rotateX: 20 }}
@@ -164,20 +201,15 @@ export default function DrawShapeUI() {
               transition={{ duration: 0.6, delay: 0.3 }}
             >
               ทดสอบความจำของคุณด้วยการวาดรูปหกเหลี่ยมให้สมบูรณ์!
-               <br />
-               พร้อมแล้วหรือยัง? มาวาดไปด้วยกันเลย!
+              <br />
+              พร้อมแล้วหรือยัง? มาวาดไปด้วยกันเลย!
             </motion.p>
             <motion.ul
               className="font-mali text-lg md:text-xl text-black list-disc list-inside mb-10 space-y-3"
               initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-            >
-              <li>วาดเส้นทีละเส้นจนครบ 6 เหลี่ยม</li>
-              <li>ได้คะแนนเมื่อวาดรูปหกเหลี่ยมสมบูรณ์</li>
-              <li>จบเกมเมื่อวาดรูปหกเหลี่ยมเสร็จเรียบร้อย!</li>
-
-            </motion.ul>
+            ></motion.ul>
             <motion.div
               className="flex justify-center items-center"
               initial={{ y: 20, opacity: 0 }}
@@ -187,13 +219,13 @@ export default function DrawShapeUI() {
               <motion.button
                 whileHover={{ scale: 1.1, rotate: -3 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={startGame} // ซ่อน overlay
+                onClick={startGame}
                 className="cursor-pointer mt-10 flex justify-center items-center"
               >
                 <motion.img
                   className="drop-shadow-lg w-32 sm:w-40 md:w-48 px-4 py-2 rounded-lg"
                   src="/images/Startgame.png"
-                  alt="Next Button"
+                  alt="Start Button"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 1 }}
@@ -202,10 +234,9 @@ export default function DrawShapeUI() {
             </motion.div>
           </motion.div>
         </motion.div>
-      ) : <>
+      ) : (
         <div className="min-h-screen bg-gray-200 flex flex-col items-center justify-start pt-20 font-mali">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-8">
-
             <div className="flex flex-col items-center">
               <h2 className="text-md font-semibold mb-2">รูปต้นแบบ</h2>
               <div className="w-96 h-96 bg-white rounded-md shadow-md flex items-center justify-center overflow-hidden">
@@ -217,7 +248,6 @@ export default function DrawShapeUI() {
               </div>
             </div>
 
-
             <div className="flex flex-col items-center">
               <h2 className="text-md font-semibold mb-2">วาดในกรอบ</h2>
               <div className="w-96 h-96 bg-white rounded-md shadow-md flex items-center justify-center">
@@ -225,16 +255,18 @@ export default function DrawShapeUI() {
                   ref={canvasRef}
                   width={384}
                   height={384}
-                  className="border border-gray-300 rounded"
+                  className="border border-gray-300 rounded touch-none"
                   onMouseDown={startDrawing}
                   onMouseMove={draw}
                   onMouseUp={stopDrawing}
                   onMouseLeave={stopDrawing}
+                  onTouchStart={startDrawing}
+                  onTouchMove={draw}
+                  onTouchEnd={stopDrawing}
                 />
               </div>
             </div>
           </div>
-
 
           <div className="flex flex-col items-center">
             <motion.button
@@ -254,7 +286,7 @@ export default function DrawShapeUI() {
             </motion.button>
           </div>
         </div>
-      </>}
+      )}
     </div>
   );
 }
