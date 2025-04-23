@@ -213,7 +213,7 @@ export default function Game_AnimalMatch() {
       detailproblems: detail,
     };
     updateGame6(dataGame6);
-    router.push('/DebugGame')
+    router.push('/GameResult')
   };
 
   return (

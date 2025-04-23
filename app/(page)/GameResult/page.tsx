@@ -1,10 +1,43 @@
 "use client";
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { motion } from "framer-motion";
-
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import Head from "next/head";
+import { GameContext } from "@/app/Context/gameContext";
+import { useRouter } from "next/navigation";
 
 export default function GameUI() {
+  const context = useContext(GameContext);
+  const router = useRouter();
+
+  useEffect(() => {
+    AOS.init();
+  },[])
+
+  useEffect(() => {
+    if (context?.gameData) {
+      const data = context.gameData;
+      context.Name("เกมเสียงธรรมชาติ")
+      if (
+        data.name == "" ||
+        data.age == 0 ||
+        data.disease == "" ||
+        data.dataSet == 0
+      ) {
+        router.push("/");
+      }
+    }
+  }, [context?.gameData]);
+
+  const formatTime = (sec: number) => {
+    const minutes = Math.floor(sec / 60)
+      .toString()
+      .padStart(2, "0");
+    const seconds = (sec % 60).toString().padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  };
+
   return (
     <>
       <div
@@ -19,17 +52,18 @@ export default function GameUI() {
             rel="stylesheet"
           />
         </Head>
-        <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <div className="min-h-screen flex flex-col items-center justify-center p-24">
           {/* Title */}
           <h1
-            className="text-5xl font-bold text-black mb-8"
+          data-aos="fade-down"
+            className="text-5xl font-bold text-black mt-8"
             style={{ fontFamily: "Mali, sans-serif" }}
           >
             ผลคะแนนรวมของคุณ
           </h1>
 
           {/* Stats Card */}
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-8 w-full max-w-md">
+          <div data-aos="flip-left" className="bg-white rounded-xl shadow-lg p-6 mt-8 w-full max-w-md">
             <div className="flex items-center mb-4">
               <div className="w-10 h-10 bg-gray-300 rounded-full mr-3 flex items-center justify-center">
                 <span className="text-black text-xl">👤</span>
@@ -38,7 +72,7 @@ export default function GameUI() {
                 className="text-2xl font-semibold"
                 style={{ fontFamily: "Mali, sans-serif" }}
               >
-                ผู้เล่น
+                {context?.gameData?.name}
               </span>
             </div>
             <div className="flex items-center mb-4">
@@ -49,7 +83,7 @@ export default function GameUI() {
                 className="text-2xl font-semibold"
                 style={{ fontFamily: "Mali, sans-serif" }}
               >
-                10 คะแนน
+                 {context?.gameData?.score} คะแนน
               </span>
             </div>
             <div className="flex items-center mb-6">
@@ -60,41 +94,42 @@ export default function GameUI() {
                 className="text-2xl font-semibold"
                 style={{ fontFamily: "Mali, sans-serif" }}
               >
-                2.23 นาที
+                {formatTime(context?.time || 0)} นาที
               </span>
             </div>
 
             {/* Ranking List */}
             <ul className="text-lg" style={{ fontFamily: "Mali, sans-serif" }}>
               <li className="flex justify-between py-3 border-b border-gray-200">
-                <span>1.เกม1</span>
-                <span>2 คะแนน</span>
+                <span>{context?.gameData?.gamedetail?.game1?.name} </span>
+                <span>{context?.gameData?.gamedetail?.game1?.score} คะแนน</span>
               </li>
               <li className="flex justify-between py-3 border-b border-gray-200">
-                <span>2.เกม2</span>
-                <span>2 คะแนน</span>
+                <span>{context?.gameData?.gamedetail?.game2?.name}</span>
+                <span>{context?.gameData?.gamedetail?.game2?.score} คะแนน</span>
               </li>
               <li className="flex justify-between py-3 border-b border-gray-200">
-                <span>3.เกม3</span>
-                <span>2 คะแนน</span>
+                <span>{context?.gameData?.gamedetail?.game3?.name}</span>
+                <span>{context?.gameData?.gamedetail?.game3?.score} คะแนน</span>
               </li>
               <li className="flex justify-between py-3 border-b border-gray-200">
-                <span>4.เกม4</span>
-                <span>2 คะแนน</span>
+                <span>{context?.gameData?.gamedetail?.game4?.name}</span>
+                <span>{context?.gameData?.gamedetail?.game4?.score} คะแนน</span>
               </li>
               <li className="flex justify-between py-3 border-b border-gray-200">
-                <span>5.เกม5</span>
-                <span>2 คะแนน</span>
+                <span>{context?.gameData?.gamedetail?.game5?.name}</span>
+                <span>{context?.gameData?.gamedetail?.game5?.score} คะแนน</span>
               </li>
               <li className="flex justify-between py-3">
-                <span>6.เกม6</span>
-                <span>2 คะแนน</span>
+                <span>{context?.gameData?.gamedetail?.game6?.name}</span>
+                <span>{context?.gameData?.gamedetail?.game6?.score} คะแนน</span>
               </li>
             </ul>
           </div>
 
           <div className="flex space-x-6">
             <motion.button
+              onClick={() => router.push("/")}
               whileHover={{ scale: 1.1, rotate: -3 }}
               whileTap={{ scale: 0.9 }}
               className="cursor-pointer"
@@ -109,6 +144,7 @@ export default function GameUI() {
               />
             </motion.button>
             <motion.button
+              onClick={() => router.push("/")}
               whileHover={{ scale: 1.1, rotate: -3 }}
               whileTap={{ scale: 0.9 }}
               className="cursor-pointer"
@@ -126,5 +162,5 @@ export default function GameUI() {
         </div>
       </div>
     </>
-  );
+  )
 }

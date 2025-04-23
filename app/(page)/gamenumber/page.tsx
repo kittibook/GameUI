@@ -149,9 +149,26 @@ export default function Game_CardflipNumber() {
     };
   };
 
+  // function shuffleCards(array: any[]) {
+  //   return array.sort(() => Math.random() - 0.5);
+  // }
+
   function shuffleCards(array: any[]) {
-    return array.sort(() => Math.random() - 0.5);
+    const result = [...array]; // clone array เพื่อไม่เปลี่ยนของเดิม
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+  
+    // ตรวจว่าหลัง shuffle ยังเหมือนเดิมไหม
+    if (array.every((val, index) => val === result[index])) {
+      // ถ้าเหมือนเดิม ลองสับใหม่
+      return shuffleCards(array);
+    }
+  
+    return result;
   }
+  
 
   const handleCardClick = (index: number) => {
     if (hasFlipped.current) {
@@ -410,13 +427,18 @@ export default function Game_CardflipNumber() {
 
         .particle:nth-child(3) {
           top: 60%;
-          left: 40%;
+          left: 50%;
           animation-delay: 4s;
         }
 
         .particle:nth-child(4) {
           top: 80%;
           left: 90%;
+          animation-delay: 6s;
+        }
+        .particle:nth-child(5) {
+          top: 50%;
+          left: 20%;
           animation-delay: 6s;
         }
 
