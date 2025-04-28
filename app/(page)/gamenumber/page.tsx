@@ -432,7 +432,7 @@ export default function Game_CardflipNumber() {
         }
 
         .particle:nth-child(4) {
-          top: 80%;
+          top: 50%;
           left: 90%;
           animation-delay: 6s;
         }

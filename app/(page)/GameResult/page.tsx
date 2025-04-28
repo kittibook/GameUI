@@ -125,6 +125,7 @@ export default function GameUI() {
                 <span>{context?.gameData?.gamedetail?.game6?.score} คะแนน</span>
               </li>
             </ul>
+            
           </div>
 
           <div className="flex space-x-6">
