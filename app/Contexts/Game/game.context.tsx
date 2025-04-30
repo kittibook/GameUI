@@ -10,6 +10,7 @@ interface GameContextType {
     gameName : string;
     sound : string
     updateDataSet: (dataSet: number) => void;
+    updateTime : (time : string) => void;
     updataName: (name: string) => void;
     updateAge: (age: number) => void;
     updateDisease: (disease: string) => void;
@@ -51,7 +52,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }, [startTime]);
 
     const StartTime = () => { setStartTime(true) }
-    const StopTime = () => { setStartTime(false) }
+    const StopTime = () => { 
+        setStartTime(false) 
+        if (!gameData) return;
+        setGameData((value) => ({
+            ...value, time: time.toString()
+        })) 
+    }
     const RestartTime = () => { setTime(0) }
 
     const Sound = (sound : string) => {
@@ -179,8 +186,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
         }));
     };
 
-    const update = (score: number) => {
+    const updateTime = (time: string) => {
         if (!gameData) return;
+        setGameData((value) => ({
+            ...value, time: time
+        }))
     };
 
 
@@ -197,6 +207,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
             StartTime,
             StopTime,
             RestartTime,
+            updateTime,
             Name,
             Sound,
             updateDataSet,

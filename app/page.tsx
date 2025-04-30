@@ -2,10 +2,16 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import useGame from "./Hook/GameHook/context.hook";
+import { useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
-
+  const context = useGame()
+  const { clearGame } = context
+  useEffect(() => {
+    clearGame()
+  },[])
   return (
     <div
       className="relative h-screen w-full flex items-center justify-center bg-cover bg-center"

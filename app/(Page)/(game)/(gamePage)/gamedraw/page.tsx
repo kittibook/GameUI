@@ -20,7 +20,7 @@ export default function DrawShapeUI() {
   const isPlaying = useRef(false);
   const context = useGame()
 
-  const { StartTime, StopTime, time, Sound, Name } = context;
+  const { StartTime, StopTime, time, Sound, Name, updateScore } = context;
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -158,7 +158,8 @@ export default function DrawShapeUI() {
 
   const submit = () => {
     router.push("/gamecolor");
-    StopTime();
+        updateScore(1);
+        StopTime();
   };
 
   return (

@@ -6,6 +6,7 @@ export interface Game {
     age : number
     disease : string
     score :  number
+    time : string
     position : Position
     gamedetail : gameDetail
 

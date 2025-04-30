@@ -1,15 +1,41 @@
 "use client";
+import { config } from "@/app/Config/config";
 import useGame from "@/app/Hook/GameHook/context.hook";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+interface datasett {
+  id: number
+  dateStart: string
+  dateEnd: string
+  Name: string
+  details: string
+  Positionid: number
+}
 
 export default function Home() {
   const router = useRouter();
   const [dataSet, setdataSet] = useState('0')
+  const [data, setData] = useState<datasett[]>([])
   const context = useGame()
 
   const { updateDataSet } = context;
+  useEffect(() => {
+    fechData()
+  }, [])
+
+  const fechData = async () => {
+    try {
+      const response = await fetch(config.url + 'game/dataset', { method: "GET" })
+      const dataset = await response.json()
+      if (dataset.success) {
+        setData(dataset.dataSet)
+      }
+    } catch (error) {
+
+    }
+  }
 
   const submit = () => {
     const number = parseInt(dataSet)
@@ -55,11 +81,15 @@ export default function Home() {
             <option value="0" disabled>
               กรุณาเลือกข้อมูลที่ต้องการ
             </option>
-            <option value="1">Dataset 1</option>
-            <option value="2">Dataset 2</option>
-            <option value="3">Dataset 3</option>
-            <option value="4">Dataset 4</option>
-            <option value="5">Dataset 5</option>
+            {Array.isArray(data) ? (
+              <>
+                {data.map((value) => (
+                  <option key={value.id} value={value.id}>{value.Name}</option>
+                ))}
+              </>
+            ) : (
+              ""
+            )}
           </motion.select>
         </motion.div>
 

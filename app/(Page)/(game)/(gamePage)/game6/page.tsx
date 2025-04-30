@@ -15,7 +15,7 @@ export default function Game_AnimalMatch() {
     { id: 2, name: "ลม", sound: "https://api.bxok.online/public/mp3/soft.mp3" },
     {
       id: 3,
-      name: "น้ำตก",
+      name: "น้ำไหล",
       sound: "https://api.bxok.online/public/mp3/waterfall.mp3",
     },
   ];
@@ -27,7 +27,6 @@ export default function Game_AnimalMatch() {
   } | null>(null);
   const [options, setOptions] = useState<string[]>([]);
   const router = useRouter();
-  const [detail, setDetail] = useState<detailGame456[]>([]);
 
   const [score, setScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -37,7 +36,7 @@ export default function Game_AnimalMatch() {
 
   const context = useGame()
 
-  const { StartTime, StopTime, time, Sound, updateScore, updateGame6 } = context;
+  const { StartTime, StopTime, time, Sound, updateScore, updateGame6,  } = context;
 
   const shuffleArray = (array: any[]) =>
     [...array].sort(() => Math.random() - 0.5);
@@ -60,6 +59,7 @@ export default function Game_AnimalMatch() {
   useEffect(() => {
     if (context?.gameData) {
       const data = context.gameData;
+      console.log(data)
       context.Name("เกมเสียงธรรมชาติ")
       if (
         data.name == "" ||
@@ -159,7 +159,6 @@ export default function Game_AnimalMatch() {
           reply: selectedOption,
           answer: currentAnimal.name,
         };
-        setDetail([...detail, details]);
         updateScore(1);
         setScore(score + 1);
         toast.success(`คำตอบถูกต้อง ✅`, {
@@ -172,7 +171,10 @@ export default function Game_AnimalMatch() {
           progress: undefined,
           theme: "light",
           transition: Bounce,
-          });
+        });
+        setIsGameOver(true);
+        StopTime()
+        resetGame([details])
       } else {
         const details = {
           ismatch: false,
@@ -180,7 +182,6 @@ export default function Game_AnimalMatch() {
           reply: selectedOption,
           answer: currentAnimal.name,
         };
-        setDetail([...detail, details]);
         toast.error(`❌ คำตอบที่ถูกคือ ${currentAnimal.name}`, {
           position: "top-right",
           autoClose: 1000,
@@ -191,21 +192,23 @@ export default function Game_AnimalMatch() {
           progress: undefined,
           theme: "light",
           transition: Bounce,
-          });
+        });
+        setIsGameOver(true);
+        StopTime()
+        resetGame([details])
       }
-      setIsGameOver(true);
-      StopTime()
-      resetGame()
+
     }
   };
 
 
 
-  const resetGame = () => {
+  const resetGame = (detail : detailGame456[]) => {
+    
     const dataGame6 = {
       name: "เกมเสียงธรรมชาติ",
       time: time,
-      score: score,
+      score: detail[0].ismatch ? 1 : 0,
       detailproblems: detail,
     };
     updateGame6(dataGame6);

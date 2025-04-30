@@ -5,6 +5,7 @@ export const defaultGameData: Game = {
     name: "",
     age: 0,
     disease: "",
+    time : "",
     score: 0,
     position: {
         latitude: "",
@@ -13,8 +14,8 @@ export const defaultGameData: Game = {
     gamedetail: {
         game1: {
             name: "เกมวาดรูป 6 เหลี่ยม",
-            time: 0,
-            score: 0,
+            time: 1,
+            score: 1,
             detail: [{ url: "" }]
         },
         game2: {
