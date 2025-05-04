@@ -1,35 +1,33 @@
 "use client";
-import { useRef, useEffect, useState, useContext } from "react";
+import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import useGame from "@/app/Hook/GameHook/context.hook";
 import { detailGame456 } from "@/app/Types/game.types";
 import NavBar from "@/app/Components/UI/Game/NavBar/page";
 import InfoGameDraw from "@/app/Components/UI/Game/info/gamedraw.info";
+import { config } from "@/app/Config/config";
+import { Bounce, toast, ToastContainer } from "react-toastify";
 
 export default function DrawShapeUI() {
   const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [contexts, setContext] = useState<CanvasRenderingContext2D | null>(
-    null
-  );
-  const [detail, setDetail] = useState<detailGame456[]>([]);
   const [showOverlay, setShowOverlay] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isPlaying = useRef(false);
   const context = useGame()
 
-  const { StartTime, StopTime, time, Sound, Name, updateScore } = context;
+  const { StartTime, StopTime, time, Sound, Name, updateScore, updateGame1 } = context;
 
   useEffect(() => {
-    if (canvasRef.current) {
-      const ctx = canvasRef.current.getContext("2d");
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
       if (ctx) {
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 10;
         ctx.strokeStyle = "#000000";
         ctx.lineCap = "round";
-        setContext(ctx);
       }
     }
   }, []);
@@ -80,93 +78,149 @@ export default function DrawShapeUI() {
     };
   };
 
-  const getCoordinates = (
-    event:
-      | React.MouseEvent<HTMLCanvasElement>
-      | React.TouchEvent<HTMLCanvasElement>
-  ) => {
+
+  const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
     const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
+    const ctx = canvas?.getContext("2d");
+    if (!ctx || !canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-    let x, y;
-
-    if ("touches" in event) {
-      x = event.touches[0].clientX - rect.left;
-      y = event.touches[0].clientY - rect.top;
-    } else {
-      x = event.nativeEvent.offsetX;
-      y = event.nativeEvent.offsetY;
-    }
-
-    return { x, y };
-  };
-
-  const startDrawing = (
-    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
-  ) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const { x, y } = getCoordinates(e);
+    const pos = getPos(e, rect);
     ctx.beginPath();
-    ctx.moveTo(x, y);
+    ctx.moveTo(pos.x, pos.y);
     setIsDrawing(true);
-
-    // Prevent default touch behavior to avoid scrolling
-    if ("touches" in e) {
-      e.preventDefault();
-    }
   };
 
-  const draw = (
-    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
-  ) => {
+
+  const draw = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDrawing) return;
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const ctx = canvas?.getContext("2d");
+    if (!ctx || !canvas) return;
 
-    const { x, y } = getCoordinates(e);
-    ctx.lineTo(x, y);
+    const rect = canvas.getBoundingClientRect();
+    const pos = getPos(e, rect);
+    // เพิ่มตรงนี้เพื่อให้แน่ใจว่ามีการเซ็ตค่าใหม่ทุกครั้ง
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = "#000000";
+    ctx.lineCap = "round";
+    ctx.lineTo(pos.x, pos.y);
     ctx.stroke();
-
-    // Prevent default touch behavior to avoid scrolling
-    if ("touches" in e) {
-      e.preventDefault();
-    }
   };
 
   const stopDrawing = () => {
     setIsDrawing(false);
   };
 
-  useEffect(() => {
+  const getPos = (
+    e: React.MouseEvent | React.TouchEvent,
+    rect: DOMRect
+  ) => {
+    if ("touches" in e) {
+      const touch = e.touches[0];
+      return {
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top,
+      };
+    } else {
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      };
+    }
+  };
+
+  const submit = async () => {
     const canvas = canvasRef.current;
     if (canvas) {
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = "#000000";
-        ctx.lineCap = "round";
-      }
-    }
-  }, []);
+      // สร้าง temporary canvas 200x200
+      const resizedCanvas = document.createElement('canvas');
+      resizedCanvas.width = 200;
+      resizedCanvas.height = 200;
+      const resizedCtx = resizedCanvas.getContext('2d');
+      if (resizedCtx) {
+        // 1. เติมพื้นหลังสีขาวก่อน
+        resizedCtx.fillStyle = 'white';
+        resizedCtx.fillRect(0, 0, 200, 200);
 
-  const submit = () => {
-    router.push("/gamecolor");
-        updateScore(1);
-        StopTime();
+        // 2. ค่อยวาดภาพจากต้นฉบับลงไป
+        resizedCtx.drawImage(canvas, 0, 0, 200, 200);
+      }
+
+      // แทนที่ใช้ canvas เดิม ให้ใช้ resizedCanvas
+      resizedCanvas.toBlob(async (blob: any) => {
+        if (!blob) return;
+
+        const formData = new FormData();
+        formData.append("file", blob);
+
+        try {
+          const response = await fetch(config.url + 'game/imagecheck', {
+            method: "POST",
+            body: formData,
+          })
+          const res = await response.json();
+          console.log(res)
+          if (response.ok) {
+
+            if (res.success) {
+
+              toast.success(res.predictedLabel, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                transition: Bounce,
+              });
+              const ctx = canvas.getContext("2d");
+              ctx?.clearRect(0, 0, canvas.width, canvas.height);
+              const data = {
+                name: "เกมวาดรูป 6 เหลี่ยม",
+                time: time,
+                score: res.point,
+                detail: [{ url: res.url }]
+              }
+              updateGame1(data)
+              router.push("/gamecolor");
+              updateScore(1);
+              StopTime();
+            } else {
+              toast.error('อัปโหลดไม่สำเร็จ!', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                transition: Bounce,
+              });
+              router.push("/gamecolor");
+              StopTime();
+            }
+
+          }
+
+        } catch (error) {
+          console.error("เกิดข้อผิดพลาดในการอัปโหลด", error);
+        }
+      }, "image/png");
+    }
+
+
+
   };
 
   return (
     <div className="">
       <NavBar />
       {showOverlay ? (
-            <InfoGameDraw startGame={startGame} />
+        <InfoGameDraw startGame={startGame} />
       ) : (
         <div className="min-h-screen bg-gray-200 flex flex-col items-center justify-start pt-20 font-mali">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-8">
@@ -188,7 +242,7 @@ export default function DrawShapeUI() {
                   ref={canvasRef}
                   width={384}
                   height={384}
-                  className="border border-gray-300 rounded touch-none"
+                  className="border border-gray-300 rounded touch-none relative"
                   onMouseDown={startDrawing}
                   onMouseMove={draw}
                   onMouseUp={stopDrawing}
@@ -220,6 +274,7 @@ export default function DrawShapeUI() {
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 }
