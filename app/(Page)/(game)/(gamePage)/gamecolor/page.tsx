@@ -8,65 +8,93 @@ import { detailGame2 } from "@/app/Types/game.types";
 import NavBar from "@/app/Components/UI/Game/NavBar/page";
 import '@/app/Styles/Game/gamecolor.styles.css'
 import InfoGameColor from "@/app/Components/UI/Game/info/gamecolor.info";
+import GameGuard from "@/app/Components/Layout/GameGuard";
+import { config } from "@/app/Config/config";
 interface selected {
   index: number;
   time: number;
 }
 
 export default function Game_CardflipColor() {
-  const color = [
-    { id: 1, color: "#e51c23", flipped: false, matched: false, error: 3 },
-    { id: 2, color: "#259b24", flipped: false, matched: false, error: 3 },
-    { id: 3, color: "#ffeb3b", flipped: false, matched: false, error: 3 },
-  ];
+  const context = useGame()
+  const { updateGame2, updateScore, StartTime, StopTime, time, Sound, setting } = context;
+  function createColor() {
+    if (!setting.game2 || !setting.game2.Card) {
+      // console.log('default Color')
+      const color = [
+        { id: 1, color: "#e51c23", flipped: false, matched: false, error: 3 },
+        { id: 2, color: "#259b24", flipped: false, matched: false, error: 3 },
+        { id: 3, color: "#ffeb3b", flipped: false, matched: false, error: 3 },
+      ];
+      return color
+    }
+    try {
+      const parsed = JSON.parse(setting.game2.Card.problems);
+      // if (!Array.isArray(parsed)) throw new Error("Invalid problems format");
+      // console.log('Color By game 2');
+      return parsed.map((color: string, index: number) => ({
+        id: index + 1,
+        color,
+        flipped: false,
+        matched: false,
+        error: 3,
+      }));
+    } catch (error) {
+      console.warn('Invalid problems JSON, using default colors', error);
+      return [
+        { id: 1, color: "#e51c23", flipped: false, matched: false, error: 3 },
+        { id: 2, color: "#259b24", flipped: false, matched: false, error: 3 },
+        { id: 3, color: "#ffeb3b", flipped: false, matched: false, error: 3 },
+      ];
+    }
+  }
+  useEffect(() => {
+    console.log(setting)
+    if (setting.game2?.Card) {
+      const newColor = createColor();
+      const shuffled = shuffleCards([...newColor, ...newColor]);
+      // setColor(newColor);
+      setCard(shuffled);
+    }
+  }, [setting]);
+
   const router = useRouter();
 
-  const [card, setCard] = useState(shuffleCards([...color, ...color]));
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const isPlaying = useRef(false);
+
+  const [card, setCard] = useState<any[]>([]);
   const [selectedCards, setSelectedCards] = useState<selected[]>([]);
   const [disabled, setDisabled] = useState(false);
   const [score, setScore] = useState(0);
   const [matchedPairs, setMatchedPairs] = useState(0);
   const [detail, setDetail] = useState<detailGame2[]>([]);
   const [showOverlay, setShowOverlay] = useState(true);
-  const context = useGame()
-  const { updateGame2, updateScore, StartTime, StopTime, time, Sound } = context;
 
   const hasStarted = useRef(false);
   const hasFlipped = useRef(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const isPlaying = useRef(false);
+
 
   function shuffleCards(array: any[]) {
-    const result = [...array]; 
+    const result = [...array];
     for (let i = result.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [result[i], result[j]] = [result[j], result[i]];
     }
-  
+
     // ตรวจว่าหลัง shuffle ยังเหมือนเดิมไหม
     if (array.every((val, index) => val === result[index])) {
       // ถ้าเหมือนเดิม ลองสับใหม่
       return shuffleCards(array);
     }
-  
+
     return result;
   }
-  
+
 
   useEffect(() => {
-    if (context?.gameData) {
-      const data = context.gameData;
-      context.Name("เกมจับคู่สี")
-      if (
-        data.name === "" ||
-        data.age === 0 ||
-        data.disease === "" ||
-        data.dataSet === 0
-      ) {
-        router.push("/");
-      }
-    }
-  }, [context?.gameData]);
+    context.Name("เกมจับคู่สี")
+  }, []);
 
 
   const startgame = () => {
@@ -92,8 +120,10 @@ export default function Game_CardflipColor() {
   const btnStartGame = () => {
     setShowOverlay(false);
     startgame();
-    playAudio("https://api.bxok.online/public/mp3/game2.mp3");
-    Sound("https://api.bxok.online/public/mp3/game2.mp3")
+    if (setting.game2 && setting.game2.Sound) {
+      playAudio(config.urlImage + setting.game2.Sound.url);
+      Sound(config.urlImage + setting.game2.Sound.url);
+    }
   };
 
   useEffect(() => {
@@ -212,49 +242,51 @@ export default function Game_CardflipColor() {
   const isGameOver = card.every((card) => card.matched || card.error === 0);
 
   return (
-    <div className="w-full h-screen relative">
-      <NavBar />
-      {!isGameOver && showOverlay ? (
-        <InfoGameColor btn={btnStartGame} />
-      ) : (
+    <GameGuard>
+      <div className="w-full h-screen relative">
+        <NavBar />
+        {!isGameOver && showOverlay ? (
+          <InfoGameColor btn={btnStartGame} />
+        ) : (
 
-        <div className="w-full h-full bg-fixed  bg-gradient-to-r from-indigo-100 to-purple-100">
-          <div className="flex flex-col items-center w-full min-h-screen pt-10">
-            {!isGameOver && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-12 p-6">
-                {card.map((card, index) => (
-                  <div
-                    key={index}
-                    className={`w-[171px] h-[242px] cursor-pointer card ${card.flipped || card.matched ? "flipped" : ""
-                      }`}
-                    onClick={() => handleCardClick(index)}
-                  >
-                    <div className="card-inner">
-                      <div
-                        className={`card-front ${card.error === 0
-                          ? "bg-red-300 error"
-                          : card.error === 1
-                            ? "bg-green-300 matched"
-                            : ""
-                          }`}
-                        style={{ backgroundColor: card.flipped ? card.color : "" }}
-                      ></div>
-                      <div className="card-back">
-                        <img
-                          src="/images/cardback.png"
-                          alt="Card Back"
-                          className="w-full h-full object-cover rounded-lg"
-                        />
+          <div className="w-full h-full bg-fixed  bg-gradient-to-r from-indigo-100 to-purple-100">
+            <div className="flex flex-col items-center w-full min-h-screen pt-10">
+              {!isGameOver && (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-12 p-6">
+                  {card.map((card, index) => (
+                    <div
+                      key={index}
+                      className={`w-[171px] h-[242px] cursor-pointer card ${card.flipped || card.matched ? "flipped" : ""
+                        }`}
+                      onClick={() => handleCardClick(index)}
+                    >
+                      <div className="card-inner">
+                        <div
+                          className={`card-front ${card.error === 0
+                            ? "bg-red-300 error"
+                            : card.error === 1
+                              ? "bg-green-300 matched"
+                              : ""
+                            }`}
+                          style={{ backgroundColor: card.flipped ? card.color : "" }}
+                        ></div>
+                        <div className="card-back">
+                          <img
+                            src="/images/cardback.png"
+                            alt="Card Back"
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
 
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </GameGuard>
   );
 }

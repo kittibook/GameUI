@@ -7,10 +7,11 @@ import { detailGame456 } from "@/app/Types/game.types";
 import useGame from "@/app/Hook/GameHook/context.hook";
 import NavBar from "@/app/Components/UI/Game/NavBar/page";
 import InfoGame6 from "@/app/Components/UI/Game/info/game6.info";
+import GameGuard from "@/app/Components/Layout/GameGuard";
 
 export default function Game_AnimalMatch() {
   const [showOverlay, setShowOverlay] = useState(true); // Add this state variable
-  const animals = [
+  const problems = [
     { id: 1, name: "ฝน", sound: "https://api.bxok.online/public/mp3/rain.mp3" },
     { id: 2, name: "ลม", sound: "https://api.bxok.online/public/mp3/soft.mp3" },
     {
@@ -36,18 +37,17 @@ export default function Game_AnimalMatch() {
 
   const context = useGame()
 
-  const { StartTime, StopTime, time, Sound, updateScore, updateGame6,  } = context;
+  const { StartTime, StopTime, time, Sound, updateScore, updateGame6, } = context;
 
   const shuffleArray = (array: any[]) =>
     [...array].sort(() => Math.random() - 0.5);
-
   const getRandomAnimal = () => {
-    const shuffled = shuffleArray([...animals]);
+    const shuffled = shuffleArray([...problems]);
     return shuffled[0];
   };
 
   const getOptions = (correctAnimal: { id: number; name: string }) => {
-    const wrongOptions = animals
+    const wrongOptions = problems
       .filter((animal) => animal.id !== correctAnimal.id)
       .map((animal) => animal.name);
     const selected = shuffleArray(wrongOptions).slice(0, 2);
@@ -57,20 +57,8 @@ export default function Game_AnimalMatch() {
 
 
   useEffect(() => {
-    if (context?.gameData) {
-      const data = context.gameData;
-      console.log(data)
-      context.Name("เกมเสียงธรรมชาติ")
-      if (
-        data.name == "" ||
-        data.age == 0 ||
-        data.disease == "" ||
-        data.dataSet == 0
-      ) {
-        router.push("/");
-      }
-    }
-  }, [context?.gameData]);
+    context.Name("เกมเสียงธรรมชาติ")
+  });
   const handleStartGame = () => {
     setShowOverlay(false);
     startgame();
@@ -203,8 +191,8 @@ export default function Game_AnimalMatch() {
 
 
 
-  const resetGame = (detail : detailGame456[]) => {
-    
+  const resetGame = (detail: detailGame456[]) => {
+
     const dataGame6 = {
       name: "เกมเสียงธรรมชาติ",
       time: time,
@@ -216,40 +204,43 @@ export default function Game_AnimalMatch() {
   };
 
   return (
-    <div className="w-full h-full min-h-screen  bg-gradient-to-r from-indigo-100 to-purple-100">
-      <NavBar />
-      {showOverlay ? (
-        <InfoGame6 btn={handleStartGame} />
-      ) : (
-        <div className="flex flex-col items-center min-h-screen pt-5 px-4">
-          {/* <div className="font-mali text-lg md:text-4xl font-bold text-red-600 animate-pulse">
+    <GameGuard>
+      <div className="w-full h-full min-h-screen  bg-gradient-to-r from-indigo-100 to-purple-100">
+        <NavBar />
+        {showOverlay ? (
+          <InfoGame6 btn={handleStartGame} />
+        ) : (
+          <div className="flex flex-col items-center min-h-screen pt-5 px-4">
+            {/* <div className="font-mali text-lg md:text-4xl font-bold text-red-600 animate-pulse">
             คะแนน: {score}
           </div> */}
-          {currentAnimal && !isGameOver && (
-            <>
-              <div className="mb-5 transition-transform duration-300 ease-in-out hover:scale-105">
-                <FaVolumeUp
-                  onClick={playAudio}
-                  className="text-blue-500 text-lg md:text-2xl w-48 h-48"
-                />
-              </div>
-              <div className="flex flex-wrap justify-center items-center gap-6 mt-10 max-w-4xl">
-                {options.map((option, index) => (
-                  <button
-                    key={index}
-                    className="px-14 py-8 mx-6 bg-[url('/images/background.png')] font-mali bg-no-repeat bg-center bg-cover text-2xl font-bold text-gray-700 transition-transform duration-300 ease-in-out hover:scale-110 disabled:opacity-60 disabled:cursor-not-allowed min-w-[200px] min-h-[115px] flex items-center justify-center"
-                    onClick={() => handleAnswer(option)}
-                    disabled={isGameOver}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      )}
-      <ToastContainer />
-    </div>
+            {currentAnimal && !isGameOver && (
+              <>
+                <div className="mb-5 transition-transform duration-300 ease-in-out hover:scale-105">
+                  <FaVolumeUp
+                    onClick={playAudio}
+                    className="text-blue-500 text-lg md:text-2xl w-48 h-48"
+                  />
+                </div>
+                <div className="flex flex-wrap justify-center items-center gap-6 mt-10 max-w-4xl">
+                  {options.map((option, index) => (
+                    <button
+                      key={index}
+                      className="px-14 py-8 mx-6 bg-[url('/images/background.png')] font-mali bg-no-repeat bg-center bg-cover text-2xl font-bold text-gray-700 transition-transform duration-300 ease-in-out hover:scale-110 disabled:opacity-60 disabled:cursor-not-allowed min-w-[200px] min-h-[115px] flex items-center justify-center"
+                      onClick={() => handleAnswer(option)}
+                      disabled={isGameOver}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+        <ToastContainer />
+      </div>
+    </GameGuard>
+
   );
 }

@@ -9,6 +9,8 @@ import useGame from "@/app/Hook/GameHook/context.hook";
 import NavBar from "@/app/Components/UI/Game/NavBar/page";
 import '@/app/Styles/Game/gamechooseanimal.styles.css'
 import InfoGamechooseanimal from "@/app/Components/UI/Game/info/gamechooseanimal.info";
+import GameGuard from "@/app/Components/Layout/GameGuard";
+import { config } from "@/app/Config/config";
 interface currentAnimal {
   id: number;
   name: string;
@@ -18,16 +20,17 @@ interface currentAnimal {
 export default function Game_AnimalMatch() {
   const router = useRouter();
 
-  const animals = [
-    { id: 1, name: "ไก่", image: "/images/chicken.png" },
-    { id: 2, name: "เสือ", image: "/images/tiger.png" },
-    { id: 3, name: "ปลา", image: "/images/fish.jpg" },
-    { id: 4, name: "หมา", image: "/images/dog.png" },
-    { id: 5, name: "แมว", image: "/images/cat.png" },
-  ];
+  // const animals = [
+  //   { id: 1, name: "ไก่", image: "/images/chicken.png" },
+  //   { id: 2, name: "เสือ", image: "/images/tiger.png" },
+  //   { id: 3, name: "ปลา", image: "/images/fish.jpg" },
+  //   { id: 4, name: "หมา", image: "/images/dog.png" },
+  //   { id: 5, name: "แมว", image: "/images/cat.png" },
+  // ];
 
   const [currentAnimal, setCurrentAnimal] = useState<currentAnimal | null>(null);
   const [options, setOptions] = useState<string[]>([]);
+  const [animals, setAnimals] = useState<currentAnimal[]>([]);
   const [score, setScore] = useState(0);
   const [round, setRound] = useState(0);
   const [selectedAnimals, setSelectedAnimals] = useState<number[]>([]);
@@ -38,23 +41,35 @@ export default function Game_AnimalMatch() {
   const isPlaying = useRef(false);
 
   const context = useGame()
-  const { updateGame4, updateScore, StartTime, StopTime, time, Sound } = context;
+  const { updateGame4, updateScore, StartTime, StopTime, time, Sound, setting } = context;
 
-  // กันไม่กรอกข้อมูล
-  useEffect(() => {
-    if (context?.gameData) {
-      const data = context.gameData;
-      context.Name("เกมรูปสัตว์")
-      if (
-        data.name === "" ||
-        data.age === 0 ||
-        data.disease === "" ||
-        data.dataSet === 0
-      ) {
-        router.push("/");
-      }
+  const createProblems = () => {
+    if (!setting || !setting.game4 || !setting.game4.Point) {
+      return [
+        { id: 1, name: "ไก่", image: "/images/chicken.png" },
+        { id: 2, name: "เสือ", image: "/images/tiger.png" },
+        { id: 3, name: "ปลา", image: "/images/fish.jpg" },
+        { id: 4, name: "แมว", image: "/images/cat.png" },
+      ]
     }
-  }, [context?.gameData]);
+    const animal = setting.game4.Point.map((point: any, index: number) => {
+      return { id: index + 1, name: point.answer, image: point.url }
+    })
+    // console.log(animal)
+    setAnimals(animal)
+    // return [
+    //     { id: 1, name: setting.game4.Point1.problems, image: "/images/chicken.png" },
+    //     { id: 2, name: "เสือ", image: "/images/tiger.png" },
+    //     { id: 3, name: "ปลา", image: "/images/fish.jpg" },
+    //     { id: 4, name: "แมว", image: "/images/cat.png" },
+    //   ]
+  }
+  useEffect(() => {
+    createProblems()
+  }, [setting]);
+  useEffect(() => {
+    context.Name("เกมรูปสัตว์")
+  }, []);
 
   // Shuffle array utility
   const shuffleArray = (array: any[]) => {
@@ -95,8 +110,11 @@ export default function Game_AnimalMatch() {
   const handleStartGame = () => {
     setShowOverlay(false);
     startGame();
-    playAudio("https://api.bxok.online/public/mp3/game4.mp3");
-    Sound("https://api.bxok.online/public/mp3/game4.mp3")
+    if (setting.game4 && setting.game4.Sound) {
+      playAudio(config.urlImage + setting.game4.Sound.url);
+      Sound(config.urlImage + setting.game4.Sound.url);
+    }
+
   };
 
   const playAudio = (audioUrl: string) => {
@@ -204,43 +222,47 @@ export default function Game_AnimalMatch() {
   const isGameOver = round === 4;
 
   return (
-    <div className="w-full h-screen relative">
+    <GameGuard>
 
-      <NavBar />
-      {showOverlay ? (
-        <InfoGamechooseanimal  btn={handleStartGame} />
-      ) : (
-        <div className="w-full h-full min-h-screen  bg-gradient-to-r from-indigo-100 to-purple-100 bg-fixed">
-          <div className="flex flex-col items-center min-h-screen pt-5 px-4">
+      <div className="w-full h-screen relative">
 
-            {currentAnimal && !isGameOver && (
-              <>
-                <div className="mb-5 transition-transform duration-300 ease-in-out hover:scale-105">
-                  <img
-                    src={currentAnimal.image}
-                    alt={currentAnimal.name}
-                    className="max-w-full h-auto object-contain"
-                  />
-                </div>
-                <div className="flex flex-wrap justify-center items-center gap-6 mt-10 max-w-4xl">
-                  {options.map((option, index) => (
-                    <button
-                      key={index}
-                      className="px-14 py-8 mx-6 bg-[url('/images/background.png')] font-mali bg-no-repeat bg-center bg-cover text-2xl font-bold text-gray-700 transition-transform duration-300 ease-in-out hover:scale-110 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 min-w-[200px] min-h-[115px] flex items-center justify-center"
-                      onClick={() => handleAnswer(option)}
-                      disabled={isGameOver}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-            
+        <NavBar />
+        {showOverlay ? (
+          <InfoGamechooseanimal btn={handleStartGame} />
+        ) : (
+          <div className="w-full h-full min-h-screen  bg-gradient-to-r from-indigo-100 to-purple-100 bg-fixed">
+            <div className="flex flex-col items-center min-h-screen pt-5 px-4">
+
+              {currentAnimal && !isGameOver && (
+                <>
+                  <div className="mb-5 transition-transform duration-300 ease-in-out hover:scale-105">
+                    <img
+                      src={config.urlImage + currentAnimal.image}
+                      alt={currentAnimal.name}
+                      className="max-w-full h-auto object-contain"
+                    />
+                  </div>
+                  <div className="flex flex-wrap justify-center items-center gap-6 mt-10 max-w-4xl">
+                    {options.map((option, index) => (
+                      <button
+                        key={index}
+                        className="px-14 py-8 mx-6 bg-[url('/images/background.png')] font-mali bg-no-repeat bg-center bg-cover text-2xl font-bold text-gray-700 transition-transform duration-300 ease-in-out hover:scale-110 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 min-w-[200px] min-h-[115px] flex items-center justify-center"
+                        onClick={() => handleAnswer(option)}
+                        disabled={isGameOver}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+            </div>
           </div>
-        </div>
-      )}
-      <ToastContainer />
-    </div>
+        )}
+        <ToastContainer />
+      </div>
+    </GameGuard>
+
   );
 }

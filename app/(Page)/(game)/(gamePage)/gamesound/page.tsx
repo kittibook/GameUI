@@ -10,34 +10,36 @@ import useGame from "@/app/Hook/GameHook/context.hook";
 import '@/app/Styles/Game/gamesound.styles.css'
 import NavBar from "@/app/Components/UI/Game/NavBar/page";
 import InfoGamesound from "@/app/Components/UI/Game/info/gamesound.info";
+import GameGuard from "@/app/Components/Layout/GameGuard";
+import { config } from "@/app/Config/config";
 
 export default function Game_AnimalMatch() {
-  const animals = [
-    {
-      id: 1,
-      name: "ไก่",
-      image: "/images/chicken.png",
-      sound: "https://api.bxok.online/public/mp3/chicken.mp3",
-    },
-    {
-      id: 2,
-      name: "เสือ",
-      image: "/images/tiger.png",
-      sound: "https://api.bxok.online/public/mp3/tiger.mp3",
-    },
-    {
-      id: 3,
-      name: "หมา",
-      image: "/images/dog.png",
-      sound: "https://api.bxok.online/public/mp3/dog.mp3",
-    },
-    {
-      id: 4,
-      name: "แมว",
-      image: "/images/cat.png",
-      sound: "https://api.bxok.online/public/mp3/cat.mp3",
-    },
-  ];
+  // const animals = [
+  //   {
+  //     id: 1,
+  //     name: "ไก่",
+  //     image: "/images/chicken.png",
+  //     sound: "https://api.bxok.online/public/mp3/chicken.mp3",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "เสือ",
+  //     image: "/images/tiger.png",
+  //     sound: "https://api.bxok.online/public/mp3/tiger.mp3",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "หมา",
+  //     image: "/images/dog.png",
+  //     sound: "https://api.bxok.online/public/mp3/dog.mp3",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "แมว",
+  //     image: "/images/cat.png",
+  //     sound: "https://api.bxok.online/public/mp3/cat.mp3",
+  //   },
+  // ];
   const router = useRouter();
 
   const [currentAnimal, setCurrentAnimal] = useState<{
@@ -55,26 +57,72 @@ export default function Game_AnimalMatch() {
   const [showOverlay, setShowOverlay] = useState(true);
   const hasStarted = useRef(false);
   const [detail, setDetail] = useState<detailGame456[]>([]);
+  const [animals, setAnimals] = useState<{
+    id: number;
+    name: string;
+    image: string;
+    sound: string;
+  }[]>([]);
 
   const context = useGame()
 
-  const { updateGame5, updateScore, StartTime, StopTime, time, Sound } = context;
+  const { updateGame5, updateScore, StartTime, StopTime, time, Sound, setting } = context;
+  const createProblems = () => {
+    if (!setting || !setting.game5 || !setting.game5.Point) {
+      // console.log('Data default')
+      return [
+        {
+          id: 1,
+          name: "ไก่",
+          image: "/images/chicken.png",
+          sound: "https://api.bxok.online/public/mp3/chicken.mp3",
+        },
+        {
+          id: 2,
+          name: "เสือ",
+          image: "/images/tiger.png",
+          sound: "https://api.bxok.online/public/mp3/tiger.mp3",
+        },
+        {
+          id: 3,
+          name: "หมา",
+          image: "/images/dog.png",
+          sound: "https://api.bxok.online/public/mp3/dog.mp3",
+        },
+        {
+          id: 4,
+          name: "แมว",
+          image: "/images/cat.png",
+          sound: "https://api.bxok.online/public/mp3/cat.mp3",
+        },
+      ]
+    }
+    // console.log('Data in sql')
+    const animal = setting.game5.Point.map((point: any, index: number) => {
+      return {
+        id: index + 1,
+        name: point.answer,
+        image: point.url,
+        sound: point.problems,
+      }
+    })
+    setAnimals(animal)
+    // return [
+    //     { id: 1, name: setting.game4.Point1.problems, image: "/images/chicken.png" },
+    //     { id: 2, name: "เสือ", image: "/images/tiger.png" },
+    //     { id: 3, name: "ปลา", image: "/images/fish.jpg" },
+    //     { id: 4, name: "แมว", image: "/images/cat.png" },
+    //   ]
+  }
+  useEffect(() => {
+    createProblems()
+  }, [setting]);
+
 
   // กันไม่กรอกข้อมูล
   useEffect(() => {
-    if (context?.gameData) {
-      const data = context.gameData;
-      context.Name("เกมเสียงสัตว์")
-      if (  
-        data.name === "" ||
-        data.age === 0 ||
-        data.disease === "" ||
-        data.dataSet === 0
-      ) {
-        router.push("/");
-      }
-    }
-  }, [context?.gameData]);
+    context.Name("เกมเสียงสัตว์")
+  }, []);
 
   // ทดสอบ
   // useEffect(() => {
@@ -172,16 +220,16 @@ export default function Game_AnimalMatch() {
       updateScore(1);
       setScore(score + 1);
       toast.success(`คำตอบถูกต้อง ✅`, {
-                position: "top-right",
-                autoClose: 1000,
-                hideProgressBar: false,
-                closeOnClick: false,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-                transition: Bounce,
-                });
+        position: "top-right",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
     } else {
       const details = {
         ismatch: false,
@@ -200,7 +248,7 @@ export default function Game_AnimalMatch() {
         progress: undefined,
         theme: "light",
         transition: Bounce,
-        });
+      });
     }
 
     if (round < 3) {
@@ -213,7 +261,7 @@ export default function Game_AnimalMatch() {
       }
     } else {
       setRound(round + 1);
-     
+
     }
   };
 
@@ -231,51 +279,54 @@ export default function Game_AnimalMatch() {
   const isGameOver = round === 4;
 
   return (
-    <div className="w-full h-screen relative">
-      <NavBar />
-      {showOverlay ? (
-        <InfoGamesound btn={ handleStartGame} />
-      ) : (
-        <div className="w-full h-full min-h-screen  bg-gradient-to-r from-indigo-100 to-purple-100 flex flex-col">
-          <div className="flex-1 flex flex-col items-center justify-start pt-10">
+    <GameGuard>
+      <div className="w-full h-screen relative">
+        <NavBar />
+        {showOverlay ? (
+          <InfoGamesound btn={handleStartGame} />
+        ) : (
+          <div className="w-full h-full min-h-screen  bg-gradient-to-r from-indigo-100 to-purple-100 flex flex-col">
+            <div className="flex-1 flex flex-col items-center justify-start pt-10">
 
-            {!isGameOver && currentAnimal && (
-              <>
-                {/* ปุ่มลำโพง */}
-                <button className="mb-10">
-                  <FaVolumeUp
-                    onClick={() => playAudio(currentAnimal.sound)}
-                    className="text-blue-500 text-lg md:text-2xl w-48 h-48"
-                  />
-                </button>
+              {!isGameOver && currentAnimal && (
+                <>
+                  {/* ปุ่มลำโพง */}
+                  <button className="mb-10">
+                    <FaVolumeUp
+                      onClick={() => playAudio(config.urlImage + currentAnimal.sound)}
+                      className="text-blue-500 text-lg md:text-2xl w-48 h-48"
+                    />
+                  </button>
 
-                {/* ตัวเลือกเป็นรูปสัตว์ */}
-                <div className="flex gap-10 justify-center items-center w-full max-w-5xl mt-16">
-                  {options.map((option, index) => {
-                    const animalObj = animals.find((a) => a.name === option);
-                    return (
-                      <button
-                        key={index}
-                        onClick={() => handleAnswer(option)}
-                        className="w-80 h-80 p-0 m-0 overflow-hidden hover:scale-105 transition-transform disabled:cursor-not-allowed"
-                        disabled={isGameOver}
-                      >
-                        <img
-                          src={animalObj?.image || ""}
-                          alt={animalObj?.name || "Unknown animal"}
-                          className="w-full h-full object-contain"
-                        />
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            )}
+                  {/* ตัวเลือกเป็นรูปสัตว์ */}
+                  <div className="flex gap-10 justify-center items-center w-full max-w-5xl mt-16">
+                    {options.map((option, index) => {
+                      const animalObj = animals.find((a) => a.name === option);
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => handleAnswer(option)}
+                          className="w-80 h-80 p-0 m-0 overflow-hidden hover:scale-105 transition-transform disabled:cursor-not-allowed"
+                          disabled={isGameOver}
+                        >
+                          <img
+                            src={config.urlImage + animalObj?.image}
+                            alt={animalObj?.name || "Unknown animal"}
+                            className="w-full h-full object-contain"
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
 
-            <ToastContainer />
+              <ToastContainer />
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </GameGuard>
+
   );
 }

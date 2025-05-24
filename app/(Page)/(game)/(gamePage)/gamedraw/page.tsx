@@ -8,6 +8,7 @@ import NavBar from "@/app/Components/UI/Game/NavBar/page";
 import InfoGameDraw from "@/app/Components/UI/Game/info/gamedraw.info";
 import { config } from "@/app/Config/config";
 import { Bounce, toast, ToastContainer } from "react-toastify";
+import GameGuard from "@/app/Components/Layout/GameGuard";
 
 export default function DrawShapeUI() {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function DrawShapeUI() {
   const isPlaying = useRef(false);
   const context = useGame()
 
-  const { StartTime, StopTime, time, Sound, Name, updateScore, updateGame1 } = context;
+  const { StartTime, StopTime, time, Sound, Name, updateScore, updateGame1, setting } = context;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -33,24 +34,16 @@ export default function DrawShapeUI() {
   }, []);
 
   useEffect(() => {
-    if (context?.gameData) {
-      const data = context.gameData;
-      Name("เกมวาดรูป 6 เหลี่ยม");
-      if (
-        data.name == "" ||
-        data.age == 0 ||
-        data.disease == "" ||
-        data.dataSet == 0
-      ) {
-        router.push("/");
-      }
-    }
-  }, [context?.gameData]);
+    Name("เกมวาดรูป 6 เหลี่ยม");
+  }, []);
 
   const startGame = () => {
     setShowOverlay(false);
-    playAudio("https://api.bxok.online/public/mp3/game1.mp3");
-    Sound("https://api.bxok.online/public/mp3/game1.mp3");
+    if (setting.game1 && setting.game1.Sound) {
+      playAudio(config.urlImage + setting.game1.Sound.url);
+      Sound(config.urlImage + setting.game1.Sound.url);
+    }
+
     StartTime();
   };
 
@@ -217,64 +210,68 @@ export default function DrawShapeUI() {
   };
 
   return (
-    <div className="">
-      <NavBar />
-      {showOverlay ? (
-        <InfoGameDraw startGame={startGame} />
-      ) : (
-        <div className="min-h-screen bg-gray-200 flex flex-col items-center justify-start pt-20 font-mali">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-8">
-            <div className="flex flex-col items-center">
-              <h2 className="text-md font-semibold mb-2">รูปต้นแบบ</h2>
-              <div className="w-96 h-96 bg-white rounded-md shadow-md flex items-center justify-center overflow-hidden">
-                <img
-                  src="/images/6.png"
-                  alt="รูปต้นแบบ"
-                  className="w-80 h-80 object-contain"
-                />
+    <GameGuard>
+
+      <div className="">
+        <NavBar />
+        {showOverlay ? (
+          <InfoGameDraw startGame={startGame} />
+        ) : (
+          <div className="min-h-screen bg-gray-200 flex flex-col items-center justify-start pt-20 font-mali">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-8">
+              <div className="flex flex-col items-center">
+                <h2 className="text-md font-semibold mb-2">รูปต้นแบบ</h2>
+                <div className="w-96 h-96 bg-white rounded-md shadow-md flex items-center justify-center overflow-hidden">
+                  <img
+                    src={config.urlImage + setting.game1.ImageDemo.url} // กำหนดรูปตชัวอย่างเป็น position เป็น ImageDemo
+                    alt="รูปต้นแบบ"
+                    className="w-80 h-80 object-contain"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center">
+                <h2 className="text-md font-semibold mb-2">วาดในกรอบ</h2>
+                <div className="w-96 h-96 bg-white rounded-md shadow-md flex items-center justify-center">
+                  <canvas
+                    ref={canvasRef}
+                    width={384}
+                    height={384}
+                    className="border border-gray-300 rounded touch-none relative"
+                    onMouseDown={startDrawing}
+                    onMouseMove={draw}
+                    onMouseUp={stopDrawing}
+                    onMouseLeave={stopDrawing}
+                    onTouchStart={startDrawing}
+                    onTouchMove={draw}
+                    onTouchEnd={stopDrawing}
+                  />
+                </div>
               </div>
             </div>
 
             <div className="flex flex-col items-center">
-              <h2 className="text-md font-semibold mb-2">วาดในกรอบ</h2>
-              <div className="w-96 h-96 bg-white rounded-md shadow-md flex items-center justify-center">
-                <canvas
-                  ref={canvasRef}
-                  width={384}
-                  height={384}
-                  className="border border-gray-300 rounded touch-none relative"
-                  onMouseDown={startDrawing}
-                  onMouseMove={draw}
-                  onMouseUp={stopDrawing}
-                  onMouseLeave={stopDrawing}
-                  onTouchStart={startDrawing}
-                  onTouchMove={draw}
-                  onTouchEnd={stopDrawing}
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: -3 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={submit}
+                className="cursor-pointer"
+              >
+                <motion.img
+                  className="mt-6 drop-shadow-lg"
+                  src="/images/next.png"
+                  alt="Next Button"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1 }}
                 />
-              </div>
+              </motion.button>
             </div>
           </div>
+        )}
+        <ToastContainer />
+      </div>
+    </GameGuard>
 
-          <div className="flex flex-col items-center">
-            <motion.button
-              whileHover={{ scale: 1.1, rotate: -3 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={submit}
-              className="cursor-pointer"
-            >
-              <motion.img
-                className="mt-6 drop-shadow-lg"
-                src="/images/next.png"
-                alt="Next Button"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1 }}
-              />
-            </motion.button>
-          </div>
-        </div>
-      )}
-      <ToastContainer />
-    </div>
   );
 }

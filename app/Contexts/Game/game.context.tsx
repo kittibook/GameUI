@@ -3,14 +3,17 @@
 import { createContext, useState, ReactNode, useEffect } from "react";
 import { Game, Game1, Game2, Game3, Game456, Position } from "../../Types/game.types";
 import { defaultGameData } from "../../Constants/Game/game.constants";
+import { fetchSettings } from "@/app/Service/getSettin.service";
 
 interface GameContextType {
     gameData: Game | undefined;
     time: number;
-    gameName : string;
-    sound : string
+    gameName: string;
+    sound: string;
+    setting: any;
+    loadSetting: boolean;
     updateDataSet: (dataSet: number) => void;
-    updateTime : (time : string) => void;
+    updateTime: (time: string) => void;
     updataName: (name: string) => void;
     updateAge: (age: number) => void;
     updateDisease: (disease: string) => void;
@@ -22,8 +25,8 @@ interface GameContextType {
     updateGame4: (Game: Game456) => void;
     updateGame5: (Game: Game456) => void;
     updateGame6: (Game: Game456) => void;
-    Name: (name : string) => void;
-    Sound: (sound : string) => void;
+    Name: (name: string) => void;
+    Sound: (sound: string) => void;
     StartTime: () => void;
     StopTime: () => void;
     RestartTime: () => void;
@@ -38,6 +41,74 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const [time, setTime] = useState<number>(0)
     const [sound, setSound] = useState<string>('')
     const [gameName, setGameName] = useState<string>('')
+    const [loadSetting, setLoadSetting] = useState<boolean>(true)
+    const [setting, setSetting] = useState<any>({})
+
+    useEffect(() => {
+        fetchData()
+    }, [])
+
+    const fetchData = async () => {
+        const data = await fetchSettings()
+        if (data.success) {
+            const settingsArray = data.Setting; // สมมุติ data คือ object ที่มี key "Setting"
+            const SettingData: any = {}
+
+            settingsArray.forEach((item: any) => {
+                // console.log(item)
+                const name = item.name
+                const settingDetail = item.SettingGameDetail
+
+                if (!SettingData[name]) {
+                    SettingData[name] = {}
+                }
+
+                // SettingData.game1 = {}
+
+                settingDetail.forEach((detail: any) => {
+                    // SettingGameDetail = {SettingGameDetail}
+                    // console.log(detail)
+                    const position = detail.position
+                    if (!SettingData[name][position]) {
+                        SettingData[name][position] = []
+                    }
+
+                    SettingData[name][position].push(detail)
+                });
+            });
+
+            for (const name in SettingData) {
+                // console.log(name)
+                for (const position in SettingData[name]) {
+                    // console.log(position)
+                    if (Array.isArray(SettingData[name][position]) && SettingData[name][position].length === 1) {
+                        SettingData[name][position] = SettingData[name][position][0];
+                    }
+                }
+            }
+
+            setSetting(SettingData)
+            setLoadSetting(false)
+            console.log(SettingData)
+            // const mappedSettings = Object.fromEntries(
+            //     // settingsArray = [ { name : { .... } } , ]
+            //     settingsArray.map((item: any) => {
+            //         const detailObject = Object.fromEntries(
+            //             item.SettingGameDetail.map((detail: any) => [detail.position, detail])
+            //         );
+            //         console.log(detailObject)
+
+            //         return [item.name, {
+            //             ...item,
+            //             SettingGameDetail: detailObject,
+            //         }];
+            //     })
+            // );
+            // // mappedSettings = { { name : { .. } } }
+            // setSetting(mappedSettings)
+            // console.log(mappedSettings)
+        }
+    }
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -52,20 +123,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }, [startTime]);
 
     const StartTime = () => { setStartTime(true) }
-    const StopTime = () => { 
-        setStartTime(false) 
+    const StopTime = () => {
+        setStartTime(false)
         if (!gameData) return;
         setGameData((value) => ({
             ...value, time: time.toString()
-        })) 
+        }))
     }
     const RestartTime = () => { setTime(0) }
 
-    const Sound = (sound : string) => {
+    const Sound = (sound: string) => {
         setSound(sound)
     }
 
-    const Name = (name : string) => {
+    const Name = (name: string) => {
         setGameName(name)
     }
 
@@ -210,6 +281,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
             updateTime,
             Name,
             Sound,
+            setting,
+            loadSetting,
             updateDataSet,
             updataName,
             updateAge,

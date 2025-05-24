@@ -10,6 +10,7 @@ import CardStar from "@/app/Components/UI/Game/result/cardstar.component";
 import Ranking from "@/app/Components/UI/Game/result/ranking.component";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import { config } from "@/app/Config/config";
+import GameGuard from "@/app/Components/Layout/GameGuard";
 
 export default function GameUI() {
   const context = useGame()
@@ -18,21 +19,6 @@ export default function GameUI() {
   useEffect(() => {
     AOS.init();
   }, [])
-
-  useEffect(() => {
-    if (context?.gameData) {
-      const data = context.gameData;
-      console.log(data)
-      if (
-        data.name == "" ||
-        data.age == 0 ||
-        data.disease == "" ||
-        data.dataSet == 0
-      ) {
-        router.push("/");
-      }
-    }
-  }, [context?.gameData]);
 
   const save = async () => {
     const response = await fetch(config.url + 'game/upload', {
@@ -43,7 +29,7 @@ export default function GameUI() {
       body: JSON.stringify({ game: context.gameData })
     })
     const data = await response.json()
-    if(data.success) {
+    if (data.success) {
       setIsSave(true)
       toast.success(`บันทึกสำเร็จ ✅`, {
         position: "top-right",
@@ -61,7 +47,7 @@ export default function GameUI() {
 
 
   return (
-    <>
+    <GameGuard>
       <div
         className="relative h-screen w-full flex items-center justify-center bg-cover bg-center overflow-hidden"
         style={{
@@ -126,8 +112,9 @@ export default function GameUI() {
             </motion.button>
           </div>
         </div>
-      <ToastContainer />
+        <ToastContainer />
       </div>
-    </>
+    </GameGuard>
+
   )
 }

@@ -8,7 +8,7 @@ import { useEffect } from "react";
 export default function Home() {
   const router = useRouter();
   const context = useGame()
-  const { clearGame } = context
+  const { clearGame, loadSetting } = context
   useEffect(() => {
     clearGame()
   },[])
@@ -34,6 +34,8 @@ export default function Home() {
       </motion.h1>
 
       {/* ปุ่มเริ่มเกม */}
+        {loadSetting ? <>
+        </> : 
       <div className="mt-30 absolute flex items-center justify-center">
         <motion.button
           whileHover={{ scale: 1.1, rotate: -3 }}
@@ -50,6 +52,7 @@ export default function Home() {
           Start Now!
         </motion.button>
       </div>
+        }
 
       {/* เพิ่มรูปภาพเพิ่มเติม (ตัวอย่าง) */}
     </div>

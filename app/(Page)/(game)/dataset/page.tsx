@@ -84,7 +84,7 @@ export default function Home() {
             {Array.isArray(data) ? (
               <>
                 {data.map((value) => (
-                  <option key={value.id} value={value.id}>{value.Name}</option>
+                  <option key={value.Name} value={value.id}>{value.Name}</option>
                 ))}
               </>
             ) : (
