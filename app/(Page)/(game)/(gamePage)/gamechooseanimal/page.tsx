@@ -53,7 +53,7 @@ export default function Game_AnimalMatch() {
       ]
     }
     const animal = setting.game4.Point.map((point: any, index: number) => {
-      return { id: index + 1, name: point.answer, image: point.url }
+      return { id: index + 1, name: point.answer, image: config.urlImage + point.url }
     })
     // console.log(animal)
     setAnimals(animal)
@@ -237,7 +237,7 @@ export default function Game_AnimalMatch() {
                 <>
                   <div className="mb-5 transition-transform duration-300 ease-in-out hover:scale-105">
                     <img
-                      src={config.urlImage + currentAnimal.image}
+                      src={currentAnimal.image}
                       alt={currentAnimal.name}
                       className="max-w-full h-auto object-contain"
                     />

@@ -102,34 +102,19 @@ export default function Game_AnimalMatch() {
       return {
         id: index + 1,
         name: point.answer,
-        image: point.url,
+        image: config.urlImage + point.url,
         sound: point.problems,
       }
     })
     setAnimals(animal)
-    // return [
-    //     { id: 1, name: setting.game4.Point1.problems, image: "/images/chicken.png" },
-    //     { id: 2, name: "เสือ", image: "/images/tiger.png" },
-    //     { id: 3, name: "ปลา", image: "/images/fish.jpg" },
-    //     { id: 4, name: "แมว", image: "/images/cat.png" },
-    //   ]
   }
   useEffect(() => {
     createProblems()
   }, [setting]);
 
-
-  // กันไม่กรอกข้อมูล
   useEffect(() => {
     context.Name("เกมเสียงสัตว์")
   }, []);
-
-  // ทดสอบ
-  // useEffect(() => {
-  //   if (context.gameData) {
-  //     console.log(context.gameData);
-  //   }
-  // }, [context?.gameData]);
 
   const shuffleArray = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
 
@@ -163,8 +148,10 @@ export default function Game_AnimalMatch() {
   const handleStartGame = () => {
     setShowOverlay(false);
     startGame();
-    playAudio("https://api.bxok.online/public/mp3/game5.mp3");
-    Sound("https://api.bxok.online/public/mp3/game5.mp3")
+    if (setting.game5 && setting.game5.Sound) {
+      playAudio(config.urlImage + setting.game5.Sound.url);
+      Sound(config.urlImage + setting.game5.Sound.url);
+    }
   };
 
   const playAudio = (audioUrl: string) => {
@@ -293,7 +280,7 @@ export default function Game_AnimalMatch() {
                   {/* ปุ่มลำโพง */}
                   <button className="mb-10">
                     <FaVolumeUp
-                      onClick={() => playAudio(config.urlImage + currentAnimal.sound)}
+                      onClick={() => playAudio(currentAnimal.sound)}
                       className="text-blue-500 text-lg md:text-2xl w-48 h-48"
                     />
                   </button>
@@ -310,7 +297,7 @@ export default function Game_AnimalMatch() {
                           disabled={isGameOver}
                         >
                           <img
-                            src={config.urlImage + animalObj?.image}
+                            src={animalObj?.image}
                             alt={animalObj?.name || "Unknown animal"}
                             className="w-full h-full object-contain"
                           />

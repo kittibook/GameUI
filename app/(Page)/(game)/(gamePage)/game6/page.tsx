@@ -8,18 +8,19 @@ import useGame from "@/app/Hook/GameHook/context.hook";
 import NavBar from "@/app/Components/UI/Game/NavBar/page";
 import InfoGame6 from "@/app/Components/UI/Game/info/game6.info";
 import GameGuard from "@/app/Components/Layout/GameGuard";
+import { config } from "@/app/Config/config";
 
 export default function Game_AnimalMatch() {
   const [showOverlay, setShowOverlay] = useState(true); // Add this state variable
-  const problems = [
-    { id: 1, name: "ฝน", sound: "https://api.bxok.online/public/mp3/rain.mp3" },
-    { id: 2, name: "ลม", sound: "https://api.bxok.online/public/mp3/soft.mp3" },
-    {
-      id: 3,
-      name: "น้ำไหล",
-      sound: "https://api.bxok.online/public/mp3/waterfall.mp3",
-    },
-  ];
+  // const problems = [
+  //   { id: 1, name: "ฝน", sound: "https://api.bxok.online/public/mp3/rain.mp3" },
+  //   { id: 2, name: "ลม", sound: "https://api.bxok.online/public/mp3/soft.mp3" },
+  //   {
+  //     id: 3,
+  //     name: "น้ำไหล",
+  //     sound: "https://api.bxok.online/public/mp3/waterfall.mp3",
+  //   },
+  // ];
 
   const [currentAnimal, setCurrentAnimal] = useState<{
     id: number;
@@ -34,13 +35,38 @@ export default function Game_AnimalMatch() {
   const hasStarted = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isPlaying = useRef(false);
-
   const context = useGame()
+  const { StartTime, StopTime, time, Sound, updateScore, updateGame6, setting } = context;
+  const [problems, setProblems] = useState<{
+    id: number;
+    name: string;
+    sound: string;
+  }[]>([]);
 
-  const { StartTime, StopTime, time, Sound, updateScore, updateGame6, } = context;
+  const createProblems = () => {
+    if (!setting || !setting.game4 || !setting.game4.Point) {
+      return [
+        { id: 1, name: "ฝน", sound: "https://api.bxok.online/public/mp3/rain.mp3" },
+        { id: 2, name: "ลม", sound: "https://api.bxok.online/public/mp3/soft.mp3" },
+        {
+          id: 3,
+          name: "น้ำไหล",
+          sound: "https://api.bxok.online/public/mp3/waterfall.mp3",
+        },
+      ]
+    }
+    const Problems = setting.game4.Point.map((point: any, index: number) => {
+      return { id: index + 1 , name: point.answer, sound: config.urlImage + point.url }
+    })
+    setProblems(Problems)
+  }
+  useEffect(() => {
+    createProblems()
+  }, [setting]);
 
   const shuffleArray = (array: any[]) =>
     [...array].sort(() => Math.random() - 0.5);
+
   const getRandomAnimal = () => {
     const shuffled = shuffleArray([...problems]);
     return shuffled[0];
@@ -54,16 +80,17 @@ export default function Game_AnimalMatch() {
     return shuffleArray([correctAnimal.name, ...selected]);
   };
 
-
-
   useEffect(() => {
     context.Name("เกมเสียงธรรมชาติ")
   });
+
   const handleStartGame = () => {
     setShowOverlay(false);
     startgame();
-    playAudios("https://api.bxok.online/public/mp3/game6.mp3");
-    Sound("https://api.bxok.online/public/mp3/game6.mp3")
+    if (setting.game5 && setting.game5.Sound) {
+      playAudios(config.urlImage + setting.game5.Sound.url);
+      Sound(config.urlImage + setting.game5.Sound.url);
+    }
   };
 
 

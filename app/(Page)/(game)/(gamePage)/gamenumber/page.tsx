@@ -280,7 +280,7 @@ export default function Game_CardflipNumber() {
                           </div>
                           <div className="card-back">
                             <img
-                              src="/images/cardback.png"
+                              src={` ${setting.game3.Card ? config.urlImage + setting.game3.Card.url : "/images/cardback.png"}`}
                               alt="Card Back"
                               className="w-full h-full object-cover rounded-lg"
                             />

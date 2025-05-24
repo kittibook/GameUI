@@ -272,7 +272,7 @@ export default function Game_CardflipColor() {
                         ></div>
                         <div className="card-back">
                           <img
-                            src="/images/cardback.png"
+                            src={` ${setting.game2.Card ? config.urlImage + setting.game2.Card.url : "/images/cardback.png"}`}
                             alt="Card Back"
                             className="w-full h-full object-cover rounded-lg"
                           />
