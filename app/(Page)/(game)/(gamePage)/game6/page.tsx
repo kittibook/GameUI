@@ -55,7 +55,7 @@ export default function Game_AnimalMatch() {
         },
       ]
     }
-    const Problems = setting.game4.Point.map((point: any, index: number) => {
+    const Problems = setting.game6.Point.map((point: any, index: number) => {
       return { id: index + 1 , name: point.answer, sound: config.urlImage + point.url }
     })
     setProblems(Problems)
@@ -74,8 +74,8 @@ export default function Game_AnimalMatch() {
 
   const getOptions = (correctAnimal: { id: number; name: string }) => {
     const wrongOptions = problems
-      .filter((animal) => animal.id !== correctAnimal.id)
-      .map((animal) => animal.name);
+      .filter((problems) => problems.id !== correctAnimal.id)
+      .map((problems) => problems.name);
     const selected = shuffleArray(wrongOptions).slice(0, 2);
     return shuffleArray([correctAnimal.name, ...selected]);
   };
@@ -87,19 +87,19 @@ export default function Game_AnimalMatch() {
   const handleStartGame = () => {
     setShowOverlay(false);
     startgame();
-    if (setting.game5 && setting.game5.Sound) {
-      playAudios(config.urlImage + setting.game5.Sound.url);
-      Sound(config.urlImage + setting.game5.Sound.url);
+    if (setting.game6 && setting.game6.Sound) {
+      playAudios(config.urlImage + setting.game6.Sound.url);
+      Sound(config.urlImage + setting.game6.Sound.url);
     }
   };
 
 
   const startgame = () => {
     if (!hasStarted.current) {
-      const animal = getRandomAnimal();
-      if (animal) {
-        setCurrentAnimal(animal);
-        setOptions(getOptions(animal));
+      const problems = getRandomAnimal();
+      if (problems) {
+        setCurrentAnimal(problems);
+        setOptions(getOptions(problems));
         hasStarted.current = true;
         StartTime()
       }

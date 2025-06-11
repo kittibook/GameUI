@@ -145,7 +145,7 @@ export default function DrawShapeUI() {
         if (!blob) return;
 
         const formData = new FormData();
-        formData.append("file", blob);
+        formData.append("file", blob, "drawn-image.png");
 
         try {
           const response = await fetch(config.url + 'game/imagecheck', {
@@ -153,7 +153,6 @@ export default function DrawShapeUI() {
             body: formData,
           })
           const res = await response.json();
-          console.log(res)
           if (response.ok) {
 
             if (res.success) {
@@ -177,9 +176,10 @@ export default function DrawShapeUI() {
                 score: res.point,
                 detail: [{ url: res.url }]
               }
+              // console.log(data)
               updateGame1(data)
               router.push("/gamecolor");
-              updateScore(1);
+              updateScore(res.point);
               StopTime();
             } else {
               toast.error('อัปโหลดไม่สำเร็จ!', {

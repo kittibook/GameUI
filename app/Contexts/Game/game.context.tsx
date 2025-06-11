@@ -89,7 +89,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
             setSetting(SettingData)
             setLoadSetting(false)
-            console.log(SettingData)
+            // console.log(SettingData)
             // const mappedSettings = Object.fromEntries(
             //     // settingsArray = [ { name : { .... } } , ]
             //     settingsArray.map((item: any) => {

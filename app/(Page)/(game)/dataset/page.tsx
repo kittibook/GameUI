@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface datasett {
-  id: number
+  Dataset_id: number
   dateStart: string
   dateEnd: string
   Name: string
@@ -30,6 +30,7 @@ export default function Home() {
       const response = await fetch(config.url + 'game/dataset', { method: "GET" })
       const dataset = await response.json()
       if (dataset.success) {
+        // console.log(dataset)
         setData(dataset.dataSet)
       }
     } catch (error) {
@@ -39,6 +40,7 @@ export default function Home() {
 
   const submit = () => {
     const number = parseInt(dataSet)
+    // console.log(number)
     updateDataSet(number)
     router.push("/information")
   }
@@ -84,7 +86,7 @@ export default function Home() {
             {Array.isArray(data) ? (
               <>
                 {data.map((value) => (
-                  <option key={value.Name} value={value.id}>{value.Name}</option>
+                  <option key={value.Name} value={value.Dataset_id}>{value.Name}</option>
                 ))}
               </>
             ) : (

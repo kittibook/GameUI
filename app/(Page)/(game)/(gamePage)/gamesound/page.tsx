@@ -103,7 +103,7 @@ export default function Game_AnimalMatch() {
         id: index + 1,
         name: point.answer,
         image: config.urlImage + point.url,
-        sound: point.problems,
+        sound: config.urlImage + point.problems,
       }
     })
     setAnimals(animal)

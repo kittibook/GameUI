@@ -24,7 +24,7 @@ export default function Home() {
         initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 1.2, ease: "easeOut" }}
-        className="font-mali absolute top-1/4 text-yellow-500 text-6xl md:text-8xl drop-shadow-lg text-center tracking-wide"
+        className="font-mali absolute top-1/4 text-yellow-500 text-3xl  md:text-6xl lg:text-7xl xl:text-8xl drop-shadow-lg text-center tracking-wide"
         style={{
           transform: "rotate(-5deg)",
           textShadow: "2px 4px 6px rgba(0,0,0,0.3)",

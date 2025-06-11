@@ -49,7 +49,7 @@ export default function Game_CardflipNumber() {
       problems = [1, 2, 3, 4, 5, 6, 7, 8, 9,10]
 
     }
-    console.log(problems)
+    // console.log(problems)
     const newCards = createArray(problems);
     const shuffled = shuffleCards([...newCards, ...newCards]);
     setCards(shuffled);
@@ -115,7 +115,9 @@ export default function Game_CardflipNumber() {
   useEffect(() => {
     if (matchedPairs === 3) {
       StopTime();
+      setTimeout(() => {
       submit()
+      }, 1000);
     }
   }, [matchedPairs]);
 
@@ -257,8 +259,6 @@ export default function Game_CardflipNumber() {
         ) : (
           <div className="w-full h-full bg-fixed  bg-gradient-to-r from-indigo-100 to-purple-100">
             <div className="flex flex-col items-center w-full min-h-screen pt-10">
-              {matchedPairs !== 3 && (
-                <>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-12 p-6">
                     {cards.map((card, index) => (
                       <div
@@ -269,12 +269,7 @@ export default function Game_CardflipNumber() {
                       >
                         <div className="card-inner">
                           <div
-                            className={`card-front ${card.error === 0
-                              ? "bg-red-300 error"
-                              : card.error === 1
-                                ? "bg-green-300 matched"
-                                : "bg-white"
-                              } text-9xl font-bold font-mali text-blue-500`}
+                            className={`card-front bg-white text-9xl font-bold font-mali text-blue-500`}
                           >
                             {card.number}
                           </div>
@@ -289,9 +284,6 @@ export default function Game_CardflipNumber() {
                       </div>
                     ))}
                   </div>
-
-                </>
-              )}
             </div>
           </div>
         )}

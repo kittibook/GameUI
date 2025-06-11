@@ -1,0 +1,7 @@
+services:
+  gameui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    image: ghcr.io/kittibook/gameui/gameui:1.0.1

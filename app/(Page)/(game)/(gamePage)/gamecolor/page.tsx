@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import useGame from "@/app/Hook/GameHook/context.hook";
 import { detailGame2 } from "@/app/Types/game.types";
@@ -49,7 +48,7 @@ export default function Game_CardflipColor() {
     }
   }
   useEffect(() => {
-    console.log(setting)
+    // console.log(setting)
     if (setting.game2?.Card) {
       const newColor = createColor();
       const shuffled = shuffleCards([...newColor, ...newColor]);
@@ -129,7 +128,9 @@ export default function Game_CardflipColor() {
   useEffect(() => {
     if (matchedPairs === 3) {
       StopTime();
-      submit()
+      setTimeout(() => {
+        submit()
+      }, 1000);
     }
   }, [matchedPairs]);
 
@@ -251,38 +252,35 @@ export default function Game_CardflipColor() {
 
           <div className="w-full h-full bg-fixed  bg-gradient-to-r from-indigo-100 to-purple-100">
             <div className="flex flex-col items-center w-full min-h-screen pt-10">
-              {!isGameOver && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-12 p-6">
-                  {card.map((card, index) => (
-                    <div
-                      key={index}
-                      className={`w-[171px] h-[242px] cursor-pointer card ${card.flipped || card.matched ? "flipped" : ""
-                        }`}
-                      onClick={() => handleCardClick(index)}
-                    >
-                      <div className="card-inner">
-                        <div
-                          className={`card-front ${card.error === 0
-                            ? "bg-red-300 error"
-                            : card.error === 1
-                              ? "bg-green-300 matched"
-                              : ""
-                            }`}
-                          style={{ backgroundColor: card.flipped ? card.color : "" }}
-                        ></div>
-                        <div className="card-back">
-                          <img
-                            src={` ${setting.game2.Card ? config.urlImage + setting.game2.Card.url : "/images/cardback.png"}`}
-                            alt="Card Back"
-                            className="w-full h-full object-cover rounded-lg"
-                          />
-                        </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-12 p-6">
+                {card.map((card, index) => (
+                  <div
+                    key={index}
+                    className={`w-[171px] h-[242px] cursor-pointer card ${card.flipped || card.matched ? "flipped" : ""
+                      }`}
+                    onClick={() => handleCardClick(index)}
+                  >
+                    <div className="card-inner">
+                      <div
+                        className={`card-front ${card.error === 0
+                          ? "bg-red-300 error"
+                          : card.error === 1
+                            ? "bg-green-300 matched"
+                            : ""
+                          }`}
+                        style={{ backgroundColor: card.flipped ? card.color : "" }}
+                      ></div>
+                      <div className="card-back">
+                        <img
+                          src={` ${setting.game2.Card ? config.urlImage + setting.game2.Card.url : "/images/cardback.png"}`}
+                          alt="Card Back"
+                          className="w-full h-full object-cover rounded-lg"
+                        />
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
