@@ -1,5 +1,6 @@
 
-export const config = {
-  url: process.env.NEXT_PUBLIC_API_URL || "https://apigamenewversion.bxok.online/",
-  urlImage: process.env.NEXT_PUBLIC_API_URL_IMAGE || "https://apigamenewversion.bxok.online/",
-};
+export const config  =  {
+    // url : "https://apigame.bxok.online/" // ตัวอย่าง : https://apigame.bxok.online/
+    url : "https://apigamenewversion.bxok.online/", // ตัวอย่าง : https://apigame.bxok.online/
+    urlImage : "https://apigamenewversion.bxok.online/" // ตัวอย่าง : https://apigame.bxok.online
+}
